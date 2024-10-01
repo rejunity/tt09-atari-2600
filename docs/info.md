@@ -9,12 +9,12 @@ You can also include images in this folder and reference them in the markdown. E
 
 ## How it works
 
-Explain how your project works
+Replica of a classic Atari 2600 (SoC) System On a Chip
 
 ## How to test
 
-Explain how to use your project
+Plug and play!
 
 ## External hardware
 
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+Tiny (mole99) VGA PMOD, Tiny Audio PMOD, VGA display.
