@@ -18,6 +18,9 @@ project:
   # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
   source_files:
     - "tt_um_rejunity_atari2600.v"
+    - "vga_hvsync_generator.v"
+    - "6502.v"
+    - "ALU.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:

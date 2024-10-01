@@ -5,7 +5,8 @@
 SIM ?= icarus
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = tt_um_rejunity_atari2600.v
+PROJECT_SOURCES += tt_um_rejunity_atari2600.v vga_hvsync_generator.v
+PROJECT_SOURCES += 6502.v ALU.v
 
 ifneq ($(GATES),yes)
 
