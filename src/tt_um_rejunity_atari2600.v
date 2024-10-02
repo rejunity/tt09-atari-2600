@@ -121,4 +121,6 @@ module tt_um_rejunity_atari2600 (
     if (rom_cs) data_in <= rom[address_bus[11:0]];
   end
 
+  assign {R, G, B} = address_bus[5:0] * video_active;
+
 endmodule
