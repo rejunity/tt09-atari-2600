@@ -51,8 +51,8 @@ pinout:
   uio[3]: ""
   uio[4]: ""
   uio[5]: ""
-  uio[6]: "Audio Left (PWM)"
-  uio[7]: "Audio Right (PWM)"
+  uio[6]: ""
+  uio[7]: "Audio (PWM)"
 
 # Do not change!
 yaml_version: 6
