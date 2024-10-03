@@ -136,6 +136,15 @@ module tt_um_rejunity_atari2600 (
   // wire  stall_cpu = 1'b0;
 
 
+  // roms/pong.asm:
+  //                Clear label is reached just after    6 us
+  //    after Clear STA COLUPF           --//--       2140 us             
+  //                Frame label          --//--       2250 us
+  //                VBLANK is initiated  --//--       2263 us
+  //                1st write PIA#296    --//--       2424 us
+  //                Vblank0 label        --//--       -//- us
+  //                1st read  PIA#284    --//--       2490 us
+
   cpu cpu(
     .clk(clk_cpu), // TODO: wrong clock
     .reset(~rst_n),
