@@ -10,8 +10,8 @@ from cocotb.triggers import ClockCycles
 async def test_project(dut):
     dut._log.info("Start")
 
-    # Set the clock period to 1 us (1 MHz)
-    clock = Clock(dut.clk, 1, units="us")
+    # Set the clock period to 40 ns (25 MHz ~ VGA pixel clock)
+    clock = Clock(dut.clk, 40, units="ns")
     cocotb.start_soon(clock.start())
 
     # Reset
@@ -28,4 +28,8 @@ async def test_project(dut):
     dut._log.info("Run")
 
     # Wait for one clock cycle to see the output values
-    await ClockCycles(dut.clk, 256)
+    # await ClockCycles(dut.clk, 128)
+    # await ClockCycles(dut.clk, 800*16)
+    # await ClockCycles(dut.clk, 800*64*2)
+    # await ClockCycles(dut.clk, 800*525*3)
+    await ClockCycles(dut.clk, 800*525*10)

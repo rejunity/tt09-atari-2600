@@ -4,7 +4,7 @@
 `default_nettype none
 
 module palette(
-  input   [2:0] hue,
+  input   [3:0] hue,
   input   [3:0] lum,
   output [23:0] rgb_24bpp
 );

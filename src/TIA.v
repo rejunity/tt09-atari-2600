@@ -38,6 +38,7 @@ module tia #(
   // video
   output reg [6:0]                vid_out,
   output [15:0]                   vid_addr,
+  output [7:0]                    vid_xpos,
   output reg                      vid_wr,
   output [127:0]                  diag
 );
@@ -76,6 +77,7 @@ module tia #(
   wire [8:0] hblank_area = pal ? 48 : 38;
 
   assign vid_addr = (ypos - start) * 160 + xpos;
+  assign vid_xpos = xpos;
 
   // Wishbone-like interface
   wire       valid_cmd = stb_i;

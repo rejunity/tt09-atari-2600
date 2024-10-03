@@ -36,8 +36,6 @@ module tt_um_rejunity_atari2600 (
   // Suppress unused signals warning
   wire _unused_ok = &{ena, ui_in, uio_in};
 
-  reg [9:0] counter;
-
   vga_hvsync_generator hvsync_gen(
     .clk(clk),
     .reset(~rst_n),
@@ -48,6 +46,8 @@ module tt_um_rejunity_atari2600 (
     .vpos(y)
   );
 
+  // Inputs
+  wire [6:0] buttons = ui_in[6:0];
 
   // ===============================================================
   // Clock Enable Generation
@@ -67,23 +67,84 @@ module tt_um_rejunity_atari2600 (
   // wire            tia_enable = clk_counter >= 5 && clk_counter <= 7;
   // wire            clk_cpu = clk_counter[c_speed];
 
+
+  reg [4:0] clk_counter;
+  always @(posedge clk) begin
+    if (~rst_n || x <= 1) begin // skip first 2 pixels to match TIA scanline 228*7=1596 to pair of VGA 800*2=1600 scanlines
+      clk_counter <= 0;
+    end else begin
+        if (clk_counter == 20) begin
+          clk_counter <= 0;
+        end else
+          clk_counter <= clk_counter + 1'b1;
+    end
+  end
+
+
+  // TIA clock
+  // 012345678901234567890
+  // ***    ***    ***    ***
+  // _ _    _ _    _ _ 
+  //    _ _    _ _    
+
+  wire clk_tia = tia_enable;//clk;
+  wire clk_cpu = ~clk_counter[4]; // 16 out of 21
+  wire tia_enable = clk_counter == 0 | clk_counter == 7 | clk_counter == 14;
+  wire cpu_enable = clk_counter == 0;
+
+  reg [6:0] scanline [159:0];
+  wire [7:0] tia_xpos;
+  always @(posedge clk) begin
+    if (tia_xpos <= 160)
+      scanline[tia_xpos] <= tia_color_out;
+  end
+
+
+  // wire [3:0] hue = tia_color_out[6:3];
+  // wire [3:0] luma = {tia_color_out[2:0], 1'b0};
+  wire [6:0] hue_luma = scanline[x/4];
+  wire [3:0] hue = hue_luma[6:3];
+  wire [3:0] luma = {hue_luma[2:0], 1'b0};
+  wire [23:0] rgb_24bpp;
+  palette palette_24bpp (
+      .hue(hue),
+      .lum(luma),
+      .rgb_24bpp(rgb_24bpp)
+  );
+
+  assign {R, G, B} = {rgb_24bpp[23], rgb_24bpp[23-4],
+                      rgb_24bpp[15], rgb_24bpp[15-4],
+                      rgb_24bpp[ 7], rgb_24bpp[ 7-4]} * video_active;
+
+
+  // reg clk_tia;
+  // always @(posedge clk)
+  //   if (rst_n && (clk_counter == 0 | clk_counter == 7 | clk_counter == 14))
+  //     clk_tia <= ~clk_tia;
+
+  // reg clk_cpu;
+  // always @(posedge clk)
+  //   if (rst_n && clk_counter == 0)
+  //     clk_cpu <= ~clk_cpu;
+
   // -------------------------------------------------------------------------
   wire [15:0] address_bus;
   reg  [7:0] data_in; // register - because that's how Arlet Otten's 6502 impl wants it
   wire [7:0] data_out;
   wire write_enable;
-  // reg stall_cpu;
-  wire  stall_cpu = 1'b0;
+  reg stall_cpu;
+  // wire  stall_cpu = 1'b0;
+
 
   cpu cpu(
-    .clk(clk), // TODO: wrong clock
+    .clk(clk_cpu), // TODO: wrong clock
     .reset(~rst_n),
     .AB(address_bus),
     .DI(data_in),
     .DO(data_out),
     .WE(write_enable),
-    .IRQ(1'b0), // pins are not inverted in Arlet Otten's 6502 impl
-    .NMI(1'b0), // pins are not inverted in Arlet Otten's 6502 impl
+    .IRQ(1'b0),  // pins are not inverted in Arlet Otten's 6502 impl
+    .NMI(1'b0),  // pins are not inverted in Arlet Otten's 6502 impl
     .RDY(!stall_cpu));
 
   reg [7:0] ram [ 127:0];
@@ -93,6 +154,38 @@ module tt_um_rejunity_atari2600 (
     // DEBUG: override reset vector
     // rom[12'hFFD] <= 8'hF0; rom[12'hFFC] <= 8'h00;
   end
+
+  wire [3:0] audio_l;
+  wire [3:0] audio_r;
+  wire [7:0] tia_data_in = data_out;
+  wire [7:0] tia_data_out;
+  wire [6:0] tia_color_out;
+
+  tia tia (
+    .clk_i(clk_tia),
+    .rst_i(~rst_n),
+    .stb_i(tia_cs),
+    .we_i(write_enable),
+    .adr_i(address_bus[5:0]),
+    .dat_i(tia_data_in),
+    .dat_o(tia_data_out),
+    // .buttons({~r_btn[6:1], r_btn[0]}),
+    .buttons(buttons),
+    .pot(8'd200),
+    .audio_left(audio_l),
+    .audio_right(audio_r),
+    .stall_cpu(stall_cpu),
+    .enable_i(tia_enable),
+    .cpu_enable_i(cpu_enable),
+    .cpu_clk_i(clk_cpu),
+    .vid_out(tia_color_out),
+    .vid_xpos(tia_xpos),
+    // .vid_addr(vid_out_addr),
+    // .vid_wr(tia_wr),
+    .pal(1'b0)
+    // .pal(pal),
+    // .diag(tia_diag)
+  );
 
   wire ram_cs = (address_bus[12:7] == 6'b0_0000_1);   // RAM: 0080-00FF
   wire rom_cs = (address_bus[12  ] == 1'b1);          // ROM: F000-FFFF
@@ -115,12 +208,10 @@ module tt_um_rejunity_atari2600 (
                   //  rom_cs ? rom[address_bus[11:0]] : 
                   //  8'h00; // pull-downs
 
-  always @(posedge clk) begin
+  always @(posedge clk_cpu) begin
     if (write_enable && ram_cs) ram[address_bus[6:0]] <= data_out;
     if (ram_cs) data_in <= ram[address_bus[ 6:0]];
     if (rom_cs) data_in <= rom[address_bus[11:0]];
+    if (tia_cs) data_in <= tia_data_out;
   end
-
-  assign {R, G, B} = address_bus[5:0] * video_active;
-
 endmodule
