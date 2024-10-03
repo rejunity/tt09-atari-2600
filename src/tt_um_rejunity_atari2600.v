@@ -196,6 +196,7 @@ module tt_um_rejunity_atari2600 (
     // .diag(tia_diag)
   );
 
+  // TODO: mirrors
   wire ram_cs = (address_bus[12:7] == 6'b0_0000_1);   // RAM: 0080-00FF
   wire rom_cs = (address_bus[12  ] == 1'b1);          // ROM: F000-FFFF
   wire tia_cs = (address_bus[12:6] == 7'b0_0000_00);  // TIA registers: 0000h - 003Fh 
