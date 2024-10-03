@@ -31,5 +31,5 @@ async def test_project(dut):
     # await ClockCycles(dut.clk, 128)
     # await ClockCycles(dut.clk, 800*16)
     # await ClockCycles(dut.clk, 800*64*2)
-    # await ClockCycles(dut.clk, 800*525*3)
-    await ClockCycles(dut.clk, 800*525*10)
+    await ClockCycles(dut.clk, 800*525*3)
+    # await ClockCycles(dut.clk, 800*525*10)

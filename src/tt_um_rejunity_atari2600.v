@@ -48,6 +48,9 @@ module tt_um_rejunity_atari2600 (
 
   // Inputs
   wire [6:0] buttons = ui_in[6:0];
+  wire [3:0] switches = {ena, ui_in[7], uio_in[1:0]};
+
+  // UXL3S was: buttons({~r_btn[6:1], r_btn[0]})
 
   // ===============================================================
   // Clock Enable Generation
@@ -178,7 +181,6 @@ module tt_um_rejunity_atari2600 (
     .adr_i(address_bus[5:0]),
     .dat_i(tia_data_in),
     .dat_o(tia_data_out),
-    // .buttons({~r_btn[6:1], r_btn[0]}),
     .buttons(buttons),
     .pot(8'd200),
     .audio_left(audio_l),
@@ -195,6 +197,23 @@ module tt_um_rejunity_atari2600 (
     // .pal(pal),
     // .diag(tia_diag)
   );
+
+  wire [7:0] pia_data_in = data_out;
+  wire [7:0] pia_data_out;
+
+  pia pia (
+    .clk_i(clk_cpu),
+    .rst_i(~rst_n),
+    .stb_i(pia_cs),
+    .we_i(write_enable),
+    .adr_i(address_bus[6:0]),
+    .dat_i(pia_data_in),
+    .dat_o(pia_data_out),
+    .buttons(buttons),
+    .sw(switches)
+    // .diag(pia_diag)
+  );
+
 
   // TODO: mirrors
   wire ram_cs = (address_bus[12:7] == 6'b0_0000_1);   // RAM: 0080-00FF
@@ -218,10 +237,12 @@ module tt_um_rejunity_atari2600 (
                   //  rom_cs ? rom[address_bus[11:0]] : 
                   //  8'h00; // pull-downs
 
+  // TODO: minimse use of clk_cpu
   always @(posedge clk_cpu) begin
     if (write_enable && ram_cs) ram[address_bus[6:0]] <= data_out;
     if (ram_cs) data_in <= ram[address_bus[ 6:0]];
     if (rom_cs) data_in <= rom[address_bus[11:0]];
     if (tia_cs) data_in <= tia_data_out;
+    if (pia_cs) data_in <= pia_data_out;
   end
 endmodule

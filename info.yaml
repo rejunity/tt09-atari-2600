@@ -19,8 +19,11 @@ project:
   source_files:
     - "tt_um_rejunity_atari2600.v"
     - "vga_hvsync_generator.v"
+    - "palette_24bpp.v"
     - "6502.v"
     - "ALU.v"
+    - "TIA.v"
+    - "PIA.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:
