@@ -36,6 +36,8 @@ module tia #(
   output reg                      stall_cpu,
 
   // video
+  // TODO: add blank, sync
+
   output reg [6:0]                vid_out,
   output [15:0]                   vid_addr,
   output [7:0]                    vid_xpos,
@@ -125,7 +127,9 @@ module tia #(
 
   integer i;
 
-  always @(posedge cpu_clk_i) begin
+  // always @(posedge cpu_clk_i) begin <--- TODO: Figure out why would this be clocked at CPU frequency?
+  //                                              Is that how original TIA chip actually worked?
+  always @(posedge clk_i) begin
       // Read-only registers
       if (valid_read_cmd) begin
         dat_o <= 0;
