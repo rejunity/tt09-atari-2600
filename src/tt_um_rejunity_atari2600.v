@@ -90,8 +90,10 @@ module tt_um_rejunity_atari2600 (
   // _ _    _ _    _ _ 
   //    _ _    _ _    
 
-  wire clk_tia = tia_enable;//clk;
-  wire clk_cpu = ~clk_counter[4]; // 16 out of 21
+  wire clk_tia = tia_enable; //clk;
+  // wire clk_cpu = clk_counter[4:3] == 2'b0; // 8 out of 21, so that we have at least 1 TIA clock during the CPU clock pulses
+  wire clk_cpu = clk_counter[4] == 0; // 16 out of 21, alternative clock ^^^
+  wire clk_pia = ~clk_cpu; // opposite of clk_cpu, emulates phi2 out from CPU
   wire tia_enable = clk_counter == 0 | clk_counter == 7 | clk_counter == 14;
   wire cpu_enable = clk_counter == 0;
 
@@ -202,7 +204,7 @@ module tt_um_rejunity_atari2600 (
   wire [7:0] pia_data_out;
 
   pia pia (
-    .clk_i(clk_cpu),
+    .clk_i(clk_pia),
     .rst_i(~rst_n),
     .stb_i(pia_cs),
     .we_i(write_enable),
@@ -216,6 +218,8 @@ module tt_um_rejunity_atari2600 (
 
 
   // TODO: mirrors
+  // TODO: according to schematics  tia_cs = (/CS0)~12 & (/CS3)~7
+  //                                pia_cs = (/CS2)~12 & ( CS1) 7     ? ( RS) 9
   wire ram_cs = (address_bus[12:7] == 6'b0_0000_1);   // RAM: 0080-00FF
   wire rom_cs = (address_bus[12  ] == 1'b1);          // ROM: F000-FFFF
   wire tia_cs = (address_bus[12:6] == 7'b0_0000_00);  // TIA registers: 0000h - 003Fh 
