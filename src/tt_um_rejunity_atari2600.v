@@ -65,12 +65,6 @@ module tt_um_rejunity_atari2600 (
   // pixel ~1:7  VGA clock
   // CPU   ~1:21 VGA clock
 
-  // reg [c_speed:0] clk_counter = 0;
-  // wire            cpu_enable = clk_counter == 0;
-  // wire            tia_enable = clk_counter >= 5 && clk_counter <= 7;
-  // wire            clk_cpu = clk_counter[c_speed];
-
-
   reg [4:0] clk_counter;
   always @(posedge clk) begin
     if (~rst_n || x <= 1) begin // skip first 2 pixels to match TIA scanline 228*7=1596 to pair of VGA 800*2=1600 scanlines
@@ -90,13 +84,12 @@ module tt_um_rejunity_atari2600 (
   // _ _    _ _    _ _ 
   //    _ _    _ _    
 
-  wire clk_tia = clk_counter == 0 | clk_counter == 7 | clk_counter == 14; //clk;
   // wire clk_tia = clk_counter[4:1] == 0 | clk_counter[4:1] == 3 | clk_counter[4:1] == 7;
   // wire clk_cpu = clk_counter[4:3] == 2'b0; // 8 out of 21, so that we have at least 1 TIA clock during the CPU clock pulses
-  wire clk_cpu = clk_counter[4] == 0; // 16 out of 21, alternative clock ^^^
   // wire clk_pia = ~clk_cpu; // opposite of clk_cpu, emulates phi2 out from CPU
-  // wire clk_pia = clk_counter[4:1] == 7;
-  wire clk_pia = clk_counter == 16; //clk_counter[4] == 1;
+  wire clk_tia = clk_counter == 0 | clk_counter == 7 | clk_counter == 14;
+  wire clk_cpu = clk_counter[4] == 0; // 16 out of 21, alternative clock ^^^
+  wire clk_pia = clk_counter == 16;
   wire tia_enable = clk_tia;//~waiting_vga_vsync;
   wire cpu_enable = clk_counter == 0;
 
@@ -138,24 +131,12 @@ module tt_um_rejunity_atari2600 (
                         rgb_24bpp[ 7], rgb_24bpp[ 7-4]}
                         : 6'b00_00_00;
 
-
-  // reg clk_tia;
-  // always @(posedge clk)
-  //   if (rst_n && (clk_counter == 0 | clk_counter == 7 | clk_counter == 14))
-  //     clk_tia <= ~clk_tia;
-  // reg clk_cpu;
-  // always @(posedge clk)
-  //   if (rst_n && clk_counter == 0)
-  //     clk_cpu <= ~clk_cpu;
-
   // -------------------------------------------------------------------------
   wire [15:0] address_bus;
   reg  [7:0] data_in; // register - because that's how Arlet Otten's 6502 impl wants it
   wire [7:0] data_out;
   wire write_enable;
   reg stall_cpu;
-  // wire  stall_cpu = 1'b0;
-
 
   // roms/pong.asm:
   //                Clear label is reached just after    6 us
