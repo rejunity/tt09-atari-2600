@@ -209,7 +209,7 @@ module tia #(
       audf1 <= 0;
 
       xpos <= 0;
-      xpos <= 0;
+      ypos <= 0;
       stall_cpu <= 0;
       vid_wr <= 0;
 
