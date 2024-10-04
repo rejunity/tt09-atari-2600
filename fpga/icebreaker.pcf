@@ -1,0 +1,105 @@
+# 12 MHz clock
+set_io -nowarn CLK        35
+
+# RS232
+set_io -nowarn RX          6
+set_io -nowarn TX          9
+
+# LEDs and Button
+set_io -nowarn BTN_N      10
+set_io -nowarn LEDR_N     11
+set_io -nowarn LEDG_N     37
+
+# RGB LED Driver
+set_io -nowarn LED_RED_N  39
+set_io -nowarn LED_GRN_N  40
+set_io -nowarn LED_BLU_N  41
+
+# SPI Flash
+set_io -nowarn FLASH_SCK  15
+set_io -nowarn FLASH_SSB  16
+set_io -nowarn FLASH_IO0  14
+set_io -nowarn FLASH_IO1  17
+set_io -nowarn FLASH_IO2  12
+set_io -nowarn FLASH_IO3  13
+
+# LEDs and Buttons (PMOD 2)
+set_io -nowarn LED1       26
+set_io -nowarn LED2       27
+set_io -nowarn LED3       25
+set_io -nowarn LED4       23
+set_io -nowarn LED5       21
+set_io -nowarn BTN1       20
+set_io -nowarn BTN2       19
+set_io -nowarn BTN3       18
+
+
+# PMOD 1A
+set_io -nowarn pmod_1a[0]  4
+set_io -nowarn pmod_1a[1]  2
+set_io -nowarn pmod_1a[2] 47
+set_io -nowarn pmod_1a[3] 45
+set_io -nowarn pmod_1a[4]  3
+set_io -nowarn pmod_1a[5] 48
+set_io -nowarn pmod_1a[6] 46
+set_io -nowarn pmod_1a[7] 44
+
+# PMOD 1B
+set_io -nowarn pmod_1b[0] 43
+set_io -nowarn pmod_1b[1] 38
+set_io -nowarn pmod_1b[2] 34
+set_io -nowarn pmod_1b[3] 31
+set_io -nowarn pmod_1b[4] 42
+set_io -nowarn pmod_1b[5] 36
+set_io -nowarn pmod_1b[6] 32
+set_io -nowarn pmod_1b[7] 28
+
+
+## 12-bit DVI Pmod on Pmod 1A/1B
+## https://github.com/icebreaker-fpga/icebreaker-pmod/blob/master/dvi-12bit/icebreaker.pcf
+
+set_io -nowarn dvi_clk      38
+set_io -nowarn dvi_hsync    31
+set_io -nowarn dvi_vsync    28
+set_io -nowarn dvi_de       32
+set_io -nowarn dvi_r[0]     48
+set_io -nowarn dvi_r[1]      2
+set_io -nowarn dvi_r[2]      3
+set_io -nowarn dvi_r[3]      4
+set_io -nowarn dvi_g[0]     44
+set_io -nowarn dvi_g[1]     45
+set_io -nowarn dvi_g[2]     46
+set_io -nowarn dvi_g[3]     47
+set_io -nowarn dvi_b[0]     34
+set_io -nowarn dvi_b[1]     36
+set_io -nowarn dvi_b[2]     42
+set_io -nowarn dvi_b[3]     43
+
+
+## Digilent 12-bit VGA Pmod on Pmod 1A/1B
+set_io -nowarn vga_12bpp_hsync    42
+set_io -nowarn vga_12bpp_vsync    36
+set_io -nowarn vga_12bpp_r[0]      4
+set_io -nowarn vga_12bpp_r[1]      2
+set_io -nowarn vga_12bpp_r[2]     47
+set_io -nowarn vga_12bpp_r[3]     45
+set_io -nowarn vga_12bpp_g[0]     43
+set_io -nowarn vga_12bpp_g[1]     38
+set_io -nowarn vga_12bpp_g[2]     34
+set_io -nowarn vga_12bpp_g[3]     31
+set_io -nowarn vga_12bpp_b[0]      3
+set_io -nowarn vga_12bpp_b[1]     48
+set_io -nowarn vga_12bpp_b[2]     46
+set_io -nowarn vga_12bpp_b[3]     44
+
+
+## TinyTapeout 6-bit VGA Pmod on Pmod 1A
+
+set_io -nowarn vga_6bpp_hsync   44
+set_io -nowarn vga_6bpp_vsync   45
+set_io -nowarn vga_6bpp_r[0]     3
+set_io -nowarn vga_6bpp_r[1]     4
+set_io -nowarn vga_6bpp_g[0]    48
+set_io -nowarn vga_6bpp_g[1]     2
+set_io -nowarn vga_6bpp_b[0]    46
+set_io -nowarn vga_6bpp_b[1]    47
