@@ -135,7 +135,8 @@ module top (
     reg [7:0] demo_out_pmod1;
     reg [7:0] demo_out_pmod2;
     tt_um_rejunity_atari2600 demo(
-        .ui_in({BTN1, BTN2, BTN3, 5'd0}),
+        // localparam UP = 3, RIGHT = 6, LEFT = 5, DOWN = 4, SELECT = 2, RESET = 0, FIRE = 1;
+        .ui_in({BTN2, BTN3, BTN2, BTN3, 1'b0, BTN1, 1'b0}),
         .uo_out(demo_out_pmod1),
         .uio_in(8'h00),
         .uio_out(demo_out_pmod2),
@@ -144,7 +145,6 @@ module top (
         .clk(clk_pixel),
         .rst_n(BTN_N)
     );
-
 
     // dummy tests
     wire pixel_r = is_display_area & counter_h[4];
