@@ -90,20 +90,35 @@ module tt_um_rejunity_atari2600 (
   // _ _    _ _    _ _ 
   //    _ _    _ _    
 
-  wire clk_tia = tia_enable; //clk;
+  wire clk_tia = clk_counter == 0 | clk_counter == 7 | clk_counter == 14; //clk;
+  // wire clk_tia = clk_counter[4:1] == 0 | clk_counter[4:1] == 3 | clk_counter[4:1] == 7;
   // wire clk_cpu = clk_counter[4:3] == 2'b0; // 8 out of 21, so that we have at least 1 TIA clock during the CPU clock pulses
   wire clk_cpu = clk_counter[4] == 0; // 16 out of 21, alternative clock ^^^
-  wire clk_pia = ~clk_cpu; // opposite of clk_cpu, emulates phi2 out from CPU
-  wire tia_enable = clk_counter == 0 | clk_counter == 7 | clk_counter == 14;
+  // wire clk_pia = ~clk_cpu; // opposite of clk_cpu, emulates phi2 out from CPU
+  // wire clk_pia = clk_counter[4:1] == 7;
+  wire clk_pia = clk_counter == 16; //clk_counter[4] == 1;
+  wire tia_enable = clk_tia;//~waiting_vga_vsync;
   wire cpu_enable = clk_counter == 0;
 
   reg [6:0] scanline [159:0];
   wire [7:0] tia_xpos;
-  always @(posedge clk) begin
+  always @(posedge clk)
     if (tia_xpos <= 160)
       scanline[tia_xpos] <= tia_color_out;
-  end
 
+  reg waiting_vga_vsync;
+  reg prev_tia_vsync;
+  always @(posedge clk)
+    if (~rst_n) begin
+      waiting_vga_vsync <= 0;
+      prev_tia_vsync <= 0;
+    end else begin
+      if (prev_tia_vsync & ~tia_vsync)
+        waiting_vga_vsync <= 1;
+      if (vsync)
+        waiting_vga_vsync <= 0;
+      prev_tia_vsync <= tia_vsync;
+    end
 
   // wire [3:0] hue = tia_color_out[6:3];
   // wire [3:0] luma = {tia_color_out[2:0], 1'b0};
@@ -117,16 +132,17 @@ module tt_um_rejunity_atari2600 (
       .rgb_24bpp(rgb_24bpp)
   );
 
-  assign {R, G, B} = {rgb_24bpp[23], rgb_24bpp[23-4],
-                      rgb_24bpp[15], rgb_24bpp[15-4],
-                      rgb_24bpp[ 7], rgb_24bpp[ 7-4]} * video_active;
+  assign {R, G, B} = (video_active & ~tia_vblank) ? 
+                       {rgb_24bpp[23], rgb_24bpp[23-4],
+                        rgb_24bpp[15], rgb_24bpp[15-4],
+                        rgb_24bpp[ 7], rgb_24bpp[ 7-4]}
+                        : 6'b00_00_00;
 
 
   // reg clk_tia;
   // always @(posedge clk)
   //   if (rst_n && (clk_counter == 0 | clk_counter == 7 | clk_counter == 14))
   //     clk_tia <= ~clk_tia;
-
   // reg clk_cpu;
   // always @(posedge clk)
   //   if (rst_n && clk_counter == 0)
@@ -143,6 +159,7 @@ module tt_um_rejunity_atari2600 (
 
   // roms/pong.asm:
   //                Clear label is reached just after    6 us
+  //                1st WSYNC            --//--       2139 us
   //    after Clear STA COLUPF           --//--       2140 us             
   //                Frame label          --//--       2250 us
   //                VBLANK is initiated  --//--       2263 us
@@ -174,6 +191,8 @@ module tt_um_rejunity_atari2600 (
   wire [7:0] tia_data_in = data_out;
   wire [7:0] tia_data_out;
   wire [6:0] tia_color_out;
+  wire       tia_vblank;
+  wire       tia_vsync;
 
   tia tia (
     .clk_i(clk_tia),
@@ -193,6 +212,8 @@ module tt_um_rejunity_atari2600 (
     .cpu_clk_i(clk_cpu),
     .vid_out(tia_color_out),
     .vid_xpos(tia_xpos),
+    .vid_vblank(tia_vblank),
+    .vid_vsync(tia_vsync),
     // .vid_addr(vid_out_addr),
     // .vid_wr(tia_wr),
     .pal(1'b0)
@@ -219,7 +240,8 @@ module tt_um_rejunity_atari2600 (
 
   // TODO: mirrors
   // TODO: according to schematics  tia_cs = (/CS0)~12 & (/CS3)~7
-  //                                pia_cs = (/CS2)~12 & ( CS1) 7     ? ( RS) 9
+  //                                pia_cs = (/CS2)~12 & ( CS1) 7 & ( RS) 9
+  //                                ram_cs = (/CS2)~12 & ( CS1) 7 &!( RS) 9
   wire ram_cs = (address_bus[12:7] == 6'b0_0000_1);   // RAM: 0080-00FF
   wire rom_cs = (address_bus[12  ] == 1'b1);          // ROM: F000-FFFF
   wire tia_cs = (address_bus[12:6] == 7'b0_0000_00);  // TIA registers: 0000h - 003Fh 

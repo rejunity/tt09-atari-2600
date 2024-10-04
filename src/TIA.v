@@ -36,9 +36,9 @@ module tia #(
   output reg                      stall_cpu,
 
   // video
-  // TODO: add blank, sync
-
   output reg [6:0]                vid_out,
+  output                          vid_vblank,
+  output                          vid_vsync,
   output [15:0]                   vid_addr,
   output [7:0]                    vid_xpos,
   output reg                      vid_wr,
@@ -80,6 +80,9 @@ module tia #(
 
   assign vid_addr = (ypos - start) * 160 + xpos;
   assign vid_xpos = xpos;
+
+  assign vid_vblank = vblank;
+  assign vid_vsync = vsync;
 
   // Wishbone-like interface
   wire       valid_cmd = stb_i;
@@ -378,7 +381,7 @@ module tia #(
 
         // Draw pixel
         if ( ypos >= start && xpos < 160) begin // Don't draw in blank area
-	  if (ypos >= hblank_area)
+          if (ypos >= hblank_area)
             vid_out <=
                bl_bit ? colupf :
                m0_bit ? colup0 :
