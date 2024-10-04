@@ -1,39 +1,64 @@
 [*]
-[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Mon Nov 20 16:00:28 2023
+[*] GTKWave Analyzer v3.3.107 (w)1999-2020 BSI
+[*] Fri Oct  4 07:20:22 2024
 [*]
-[dumpfile] "/home/uri/p/tt-new-template-proto/test/tb.vcd"
-[dumpfile_mtime] "Mon Nov 20 15:58:34 2023"
-[dumpfile_size] 1110
-[savefile] "/home/uri/p/tt-new-template-proto/test/tb.gtkw"
-[timestart] 0
-[size] 1376 600
+[dumpfile] "/Users/rej/Dev/TinyTapeout/tt09-atari-2600.git/test/tb.vcd"
+[dumpfile_mtime] "Fri Oct  4 07:08:26 2024"
+[dumpfile_size] 91781850
+[savefile] "/Users/rej/Dev/TinyTapeout/tt09-atari-2600.git/test/tb.gtkw"
+[timestart] 1380000000
+[size] 2404 914
 [pos] -1 -1
-*-24.534533 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-32.205761 14850000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] tb.
-[sst_width] 297
-[signals_width] 230
+[treeopen] tb.user_project.
+[sst_width] 193
+[signals_width] 184
 [sst_expanded] 1
-[sst_vpaned_height] 158
+[sst_vpaned_height] 277
 @28
-tb.user_project.ena
-@29
-tb.user_project.clk
+tb.clk
+tb.rst_n
+tb.user_project.vsync
+tb.user_project.hsync
+tb.user_project.video_active
+tb.user_project.waiting_vga_vsync
+@22
+tb.uo_out[7:0]
 @28
-tb.user_project.rst_n
-@200
--Inputs
+tb.user_project.clk_cpu
+tb.user_project.clk_pia
+tb.user_project.clk_tia
+tb.user_project.cpu_enable
+tb.user_project.stall_cpu
 @22
-tb.user_project.ui_in[7:0]
-@200
--Bidirectional Pins
+tb.user_project.cpu.PC[15:0]
+tb.user_project.address_bus[15:0]
+tb.user_project.data_in[7:0]
+tb.user_project.data_out[7:0]
+@28
+tb.user_project.write_enable
+tb.user_project.ram_cs
+tb.user_project.rom_cs
+tb.user_project.tia_cs
+tb.user_project.pia_cs
 @22
-tb.user_project.uio_in[7:0]
-tb.user_project.uio_oe[7:0]
-tb.user_project.uio_out[7:0]
-@200
--Output Pins
+tb.user_project.tia_data_in[7:0]
+tb.user_project.tia_data_out[7:0]
+@28
+tb.user_project.tia_enable
+tb.user_project.tia_vblank
+tb.user_project.tia_vsync
 @22
-tb.user_project.uo_out[7:0]
+tb.user_project.tia_xpos[7:0]
+@23
+tb.user_project.tia_color_out[6:0]
+@22
+tb.user_project.x[9:0]
+tb.user_project.y[9:0]
+tb.user_project.tia.xpos[7:0]
+tb.user_project.tia.ypos[8:0]
+tb.user_project.pia_data_in[7:0]
+tb.user_project.pia_data_out[7:0]
 [pattern_trace] 1
 [pattern_trace] 0
