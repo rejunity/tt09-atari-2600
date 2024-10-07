@@ -128,9 +128,9 @@ module top (
         .locked()
     );
 
-    reg h_sync, v_sync, is_display_area;
-    reg [9:0] counter_h;
-    reg [9:0] counter_v;
+    // reg h_sync, v_sync, is_display_area;
+    // reg [9:0] counter_h;
+    // reg [9:0] counter_v;
 
     reg [7:0] demo_out_pmod1;
     reg [7:0] demo_out_pmod2;
@@ -147,10 +147,10 @@ module top (
     );
 
     // dummy tests
-    wire pixel_r = is_display_area & counter_h[4];
-    wire pixel_g = is_display_area & counter_h[2];
-    wire pixel_b = is_display_area & counter_h[3];
-    wire [11:0] pixel_rgb = {counter_h[7:4], counter_v[7:4], 4'h4} * is_display_area;
+    // wire pixel_r = is_display_area & counter_h[4];
+    // wire pixel_g = is_display_area & counter_h[2];
+    // wire pixel_b = is_display_area & counter_h[3];
+    // wire [11:0] pixel_rgb = {counter_h[7:4], counter_v[7:4], 4'h4} * is_display_area;
 
 `ifdef VGA_6BPP
     // VGA 6bpp
