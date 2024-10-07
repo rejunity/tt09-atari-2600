@@ -13,7 +13,6 @@ module tia #(
   input                           rst_i,
   input                           enable_i,
   input                           cpu_enable_i,
-  input                           cpu_clk_i,
 
   input                           stb_i,
   input                           we_i,
@@ -448,29 +447,32 @@ module tia #(
   );
 
   // Produce the audio
-  always @(posedge cpu_clk_i) begin
-    audio_left_counter <= audio_left_counter + 1;
-    audio_right_counter <= audio_right_counter + 1;
+  always @(posedge clk_i) begin // WAS always @(posedge cpu_clk_i)
+    // Audio counts at CPU frequency
+    if (cpu_enable_i) begin
+      audio_left_counter <= audio_left_counter + 1;
+      audio_right_counter <= audio_right_counter + 1;
 
-    if (audc0 != 4'h0 && audc0 != 4'hb) begin
-      if (audio_left_counter >= audio_div0) begin
-        if (audc0 == 1) audio_l <= p4_l;
-	else if (audc0 == 8) audio_l <= p9_l;
-	else if (audc0 == 9 || audc0 == 7) audio_l <= p5_l;
-	else audio_l <= !audio_l;
-        audio_left_counter <= 0;
-      end
-    end else audio_l <= 1;
+      if (audc0 != 4'h0 && audc0 != 4'hb) begin
+        if (audio_left_counter >= audio_div0) begin
+          if (audc0 == 1) audio_l <= p4_l;
+        	else if (audc0 == 8) audio_l <= p9_l;
+          else if (audc0 == 9 || audc0 == 7) audio_l <= p5_l;
+          else audio_l <= !audio_l;
+          audio_left_counter <= 0;
+        end
+      end else audio_l <= 1;
 
-    if (audc1 != 4'h0 && audc1 != 4'hb) begin
-      if (audio_right_counter >= audio_div1) begin
-        if (audc1 == 1) audio_r <= p4_r;
-	else if (audc1 == 8) audio_r <= p9_r;
-	else if (audc1 == 9 || audc1 == 7) audio_r <= p5_r;
-	else audio_r <= !audio_r;
-        audio_right_counter <= 0;
-      end
-    end else audio_r <= 1;
+      if (audc1 != 4'h0 && audc1 != 4'hb) begin
+        if (audio_right_counter >= audio_div1) begin
+          if (audc1 == 1) audio_r <= p4_r;
+          else if (audc1 == 8) audio_r <= p9_r;
+          else if (audc1 == 9 || audc1 == 7) audio_r <= p5_r;
+          else audio_r <= !audio_r;
+          audio_right_counter <= 0;
+        end
+      end else audio_r <= 1;
+    end
   end
 
   assign audio_left = audio_l * audv0;
