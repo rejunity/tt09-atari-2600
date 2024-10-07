@@ -41,6 +41,7 @@ module tia #(
   output                          vid_vsync,
   output [15:0]                   vid_addr,
   output [7:0]                    vid_xpos,
+  output [8:0]                    vid_ypos,
   output reg                      vid_wr,
   output [127:0]                  diag
 );
@@ -80,6 +81,7 @@ module tia #(
 
   assign vid_addr = (ypos - start) * 160 + xpos;
   assign vid_xpos = xpos;
+  assign vid_ypos = ypos;
 
   assign vid_vblank = vblank;
   assign vid_vsync = vsync;
