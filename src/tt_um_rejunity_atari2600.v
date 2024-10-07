@@ -67,7 +67,7 @@ module tt_um_rejunity_atari2600 (
 
   reg [4:0] clk_counter;
   always @(posedge clk) begin
-    if (~rst_n || x <= 1) begin // skip first 2 pixels to match TIA scanline 228*7=1596 to pair of VGA 800*2=1600 scanlines
+    if (~rst_n || vga_xpos >= 798 ) begin // skip last 2 pixels to match TIA scanline 228*7=1596 to pair of VGA 800*2=1600 scanlines
       clk_counter <= 0;
     end else begin
         if (clk_counter == 20) begin
