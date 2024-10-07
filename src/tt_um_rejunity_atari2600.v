@@ -223,10 +223,13 @@ module tt_um_rejunity_atari2600 (
   // TODO: according to schematics  tia_cs = (/CS0)~12 & (/CS3)~7
   //                                pia_cs = (/CS2)~12 & ( CS1) 7 & ( RS) 9
   //                                ram_cs = (/CS2)~12 & ( CS1) 7 &!( RS) 9
-  wire ram_cs = (address_bus[12:7] == 6'b0_0000_1);   // RAM: 0080-00FF
+  //wire ram_cs = (address_bus[12:7] == 6'b0_0000_1);   // RAM: 0080-00FF
   wire rom_cs = (address_bus[12  ] == 1'b1);          // ROM: F000-FFFF
-  wire tia_cs = (address_bus[12:6] == 7'b0_0000_00);  // TIA registers: 0000h - 003Fh 
-  wire pia_cs = (address_bus[12:5] == 8'b0_0010_100); // PIA registers: 0280h - 029Fh
+  // wire tia_cs = (address_bus[12:6] == 7'b0_0000_00);  // TIA registers: 0000h - 003Fh 
+  // wire pia_cs = (address_bus[12:5] == 8'b0_0010_100); // PIA registers: 0280h - 029Fh
+  wire tia_cs = (address_bus[12] == 0 && address_bus[7] == 0);  // TIA registers: 0000h - 003Fh 
+  wire pia_cs = (address_bus[12] == 0 && address_bus[7] == 1 && address_bus[9] == 1);  // TIA registers: 0000h - 003Fh 
+  wire ram_cs = (address_bus[12] == 0 && address_bus[7] == 1 && address_bus[9] == 0);   // RAM: 0080-00FF
   // F000-FFFF ROM   11111111  Cartridge ROM (4 Kbytes max)
   // F000-F07F RAMW  11111111  Cartridge RAM Write (optional 128 bytes)
   // F000-F0FF RAMW  11111111  Cartridge RAM Write (optional 256 bytes)
