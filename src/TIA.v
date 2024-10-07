@@ -218,7 +218,7 @@ module tia #(
       vid_wr <= 0;
 
     // Process reads and writes from CPU
-    end else if (cpu_enable_i) begin
+    end else if (cpu_enable_i) begin // TODO: if write_cmd instead, don't unnecesarry depend on cpu clock here
       cx_clr <= 0;
 
       // Write-only registers
@@ -238,7 +238,8 @@ module tia #(
                   dump_ports <= dat_i[7];
                 end
           'h02: stall_cpu <= 1;           // WSYNC
-          'h03: ;                         // RSYNC
+          // 'h03: ypos <= 0;                         // RSYNC      TODO: shouldn't RSYNC reset xpos or ypos?
+          'h03: ;                         // RSYNC      TODO: shouldn't RSYNC reset xpos or ypos?
           'h04: begin                     // NUSIZ0 
                   m0_w <= (1 << dat_i[5:4]);
                   p0_scale <= 0;
@@ -282,6 +283,11 @@ module tia #(
           'h0d: for(i = 0; i<4; i = i + 1) pf[i] <= dat_i[4+i];   // PF0
           'h0e: for(i = 0; i<8; i = i + 1) pf[4+i] <= dat_i[7-i]; // PF1
           'h0f: for(i = 0; i<8; i = i + 1) pf[12+i] <= dat_i[i];  // PF2
+          // 'h10: x_p0 <= (xpos >= 160 | ypos < start) ? 0 : xpos + 5;        // RESP0
+          // 'h11: x_p1 <= (xpos >= 160 | ypos < start) ? 0 : xpos + 5;        // RESP1
+          // 'h12: x_m0 <= (xpos >= 160 | ypos < start) ? 0 : xpos + 5;        // RESM0
+          // 'h13: x_m1 <= (xpos >= 160 | ypos < start) ? 0 : xpos + 5;        // RESM1
+          // 'h14: x_bl <= (xpos >= 160 | ypos < start) ? 0 : xpos + 5;        // RESBL
           'h10: x_p0 <= xpos >= 160 ? 0 : xpos + 5;        // RESP0
           'h11: x_p1 <= xpos >= 160 ? 0 : xpos + 5;        // RESP1
           'h12: x_m0 <= xpos >= 160 ? 0 : xpos + 5;        // RESM0
