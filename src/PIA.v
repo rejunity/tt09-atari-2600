@@ -8,6 +8,7 @@
 module pia (
   input                           clk_i,
   input                           rst_i,
+  input                           enable_i,
 
   input                           stb_i,
   input                           we_i,
@@ -46,7 +47,9 @@ module pia (
       underflow <= 0;
       instat <= 0;
     end else begin
-      reset_timer <= 0;
+      // Process reads and writes from CPU
+      if (valid_cmd)
+        reset_timer <= 0;
 
       if (valid_read_cmd) begin
         case (adr_i) 
@@ -54,8 +57,8 @@ module pia (
           7'h01: dat_o <= swa_dir; // SWACNT
           7'h02: dat_o <= {~sw[0], ~sw[1], 2'b11, sw[2], 1'b1, buttons[SELECT], buttons[RESET]}; // SWCHB
           7'h03: dat_o <= {2'b0, swb_dir[5:4], 1'b0, swb_dir[2], 2'b0}; // SWBCNT
-	  7'h04: begin; dat_o <= intim; underflow <= 0; end // INTIM
-	  7'h05: begin dat_o <= {instat, 6'b0}; instat[0] <= 0; end// INSTAT
+          7'h04: begin; dat_o <= intim; underflow <= 0; end // INTIM
+          7'h05: begin dat_o <= {instat, 6'b0}; instat[0] <= 0; end// INSTAT
         endcase
       end
 
@@ -70,21 +73,24 @@ module pia (
         endcase
       end
 
-      if (reset_timer > 0) begin
-        time_counter <= 0;
-        intim <= reset_timer;
-	instat <= 2'b0;
-      end else begin
-        time_counter <= time_counter + 1;
-      end
-
-      if (time_counter == (underflow ? 11'b1 : interval) - 1) begin
-        if (intim == 0) begin
-	  underflow <= 1;
-	  instat <= 2'b11;
+      // Process timers
+      if (enable_i) begin
+        if (reset_timer > 0) begin
+          time_counter <= 0;
+          intim <= reset_timer;
+          instat <= 2'b0;
+        end else begin
+          time_counter <= time_counter + 1;
         end
-        intim <= intim - 1;
-        time_counter <= 0;
+
+        if (time_counter == (underflow ? 11'b1 : interval) - 1) begin
+          if (intim == 0) begin
+            underflow <= 1;
+            instat <= 2'b11;
+          end
+          intim <= intim - 1;
+          time_counter <= 0;
+        end
       end
     end
   end
