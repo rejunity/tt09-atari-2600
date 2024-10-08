@@ -280,11 +280,12 @@ module tt_um_rejunity_atari2600 (
   wire ram_cs = (address_bus[12] == 0 && address_bus[7] == 1 && address_bus[9] == 0);
 
   always @(posedge clk) begin
-    if (cpu_enable) begin
-      if (write_enable && ram_cs) ram[address_bus[6:0]] <= data_out;
-      if (ram_cs) data_in <= ram[address_bus[ 6:0]];
-      if (rom_cs) data_in <= rom[address_bus[11:0]];
-    end
+    // CPU writes
+    if (cpu_enable & write_enable & ram_cs) ram[address_bus[6:0]] <= data_out;
+
+    // CPU reads
+    if (ram_cs) data_in <= ram[address_bus[ 6:0]];
+    if (rom_cs) data_in <= rom[address_bus[11:0]];
     if (tia_cs) data_in <= tia_data_out;
     if (pia_cs) data_in <= pia_data_out;
   end
