@@ -125,12 +125,8 @@ module tt_um_rejunity_atari2600 (
   reg [7:0] scanline [255:0];
   wire [7:0] tia_xpos;
   always @(posedge clk) begin
-    // if (tia_xpos < 30)// && clk_tia)
-    //   scanline[tia_xpos] <= 6'b00_00_11 | tia_color_out[5:0];
-    // else if (tia_xpos < 160)// && clk_tia)
-    //   scanline[tia_xpos] <= 6'b00_11_00 | tia_color_out[5:0];
-    if (tia_xpos < 160)// && clk_tia)
-      scanline[tia_xpos] <= tia_color_out[5:0];
+    if (tia_xpos < 160)
+      scanline[tia_xpos] <= tia_color_out;
   end
 
   wire [8:0] tia_ypos;
@@ -162,41 +158,14 @@ module tt_um_rejunity_atari2600 (
       .rgb_24bpp(rgb_24bpp)
   );
 
-
-  reg [7:0] tia_xpos_;
-  reg [6:0] hue_luma_;
-  // always @(posedge clk)
-  //   if (clk_tia)
-  //     tia_xpos_ <= tia_xpos;
-  // always @(negedge clk_tia)
-  //     tia_xpos_ <= tia_xpos;
-  // always @(negedge clk_tia)
-  //     hue_luma_ <= hue_luma;
-  // always @(negedge clk_tia)
-  //   if (tia_xpos < 160)
-  //     scanline[tia_xpos] <= tia_color_out;
-
   assign {R, G, B} = (!video_active) ? 6'b00_00_00:
-                      // scanline[vga_xpos[6:0]][5:0]
-                      scanline[vga_xpos[9:2]][5:0]
-                      // tia_color_out[6:1]
-  // & ~tia_vblank) ? 
-                          // (tia_vsync ? 6'b11_00_00 : 0) |
-                           // (
-                           //  (tia_xpos_ <  80) ? 6'b11_00_00:
-                           //  (tia_xpos_ < 160) ? 6'b00_11_00:
-                           //                     6'b00_00_11)
-                           // (~tia_wr) ? 6'b11_00_00 :
-                          // (tia_vblank ? 6'b01_01_01 : 0)
-                       // {rgb_24bpp[23], rgb_24bpp[23-1],
-                       //  // rgb_24bpp[15], rgb_24bpp[15-1],
-                       //  tia_ypos[2:1],
-                       //  rgb_24bpp[ 7], rgb_24bpp[ 7-1]}
-                        ;
+                                      {rgb_24bpp[23], rgb_24bpp[23-1],
+                                       rgb_24bpp[15], rgb_24bpp[15-1],
+                                       rgb_24bpp[ 7], rgb_24bpp[ 7-1]};
 
   // -------------------------------------------------------------------------
   wire [15:0] address_bus_w;
-  reg [15:0] address_bus_r;
+  reg  [15:0] address_bus_r;
   wire [15:0] address_bus = cpu_enable ? address_bus_w : address_bus_r;
   reg  [7:0] data_in; // register - because that's how Arlet Otten's 6502 impl wants it
   wire [7:0] data_out;
