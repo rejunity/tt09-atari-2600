@@ -23,16 +23,18 @@ PROJECT_SOURCES += palette_24bpp.v
 
 a2600: V${TOP}.mk
 	make -C ./obj_dir -f V${TOP}.mk
+	cp ./obj_dir/${EXEC_NAME} .
 
 V${TOP}.mk: ${MAIN_CPP}
 	verilator ${VFLAGS} ${WFLAGS} -I${SRC_DIR} \
 		-cc  ${TOP}.v ${PROJECT_SOURCES}  --exe $< -o ${EXEC_NAME} \
 		-CFLAGS "${SDL_CFLAGS}" -LDFLAGS "${SDL_LDFLAGS}"
 
-#all:
+all:
 
 clean:
 	rm -rf ./obj_dir
+	rm -f  ./${EXEC_NAME}
 
 .PHONY: all clean
 
