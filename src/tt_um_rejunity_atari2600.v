@@ -291,34 +291,25 @@ module tt_um_rejunity_atari2600 (
     // .diag(pia_diag)
   );
 
+  // All memory is mirrored in steps of 2000h
+  // TIA Write Mirrors (Step 40h,100h)
+  // TIA Read Mirrors (Step 10h,100h)
+  // PIA I/O Mirrors (Step 2h,8h,100h,400h)
+  // PIA RAM Mirrors (Step 100h,400h)
+  // 0000-002C  TIA Write
+  // 0000-000D  TIA Read
+  // 0080-00FF  PIA RAM (128 bytes)
+  // 0280-0297  PIA Reads & Writes
+  // F000-FFFF  Cartridge Memory (4 Kbytes area)
 
-  // TODO: mirrors
-  // TODO: according to schematics  tia_cs = (/CS0)~12 & (/CS3)~7
-  //                                pia_cs = (/CS2)~12 & ( CS1) 7 & ( RS) 9
-  //                                ram_cs = (/CS2)~12 & ( CS1) 7 &!( RS) 9
-  //wire ram_cs = (address_bus[12:7] == 6'b0_0000_1);   // RAM: 0080-00FF
-  wire rom_cs = (address_bus[12  ] == 1'b1);          // ROM: F000-FFFF
-  // wire tia_cs = (address_bus[12:6] == 7'b0_0000_00);  // TIA registers: 0000h - 003Fh 
-  // wire pia_cs = (address_bus[12:5] == 8'b0_0010_100); // PIA registers: 0280h - 029Fh
-  wire tia_cs = (address_bus[12] == 0 && address_bus[7] == 0);  // TIA registers: 0000h - 003Fh 
-  wire pia_cs = (address_bus[12] == 0 && address_bus[7] == 1 && address_bus[9] == 1);  // TIA registers: 0000h - 003Fh 
-  wire ram_cs = (address_bus[12] == 0 && address_bus[7] == 1 && address_bus[9] == 0);   // RAM: 0080-00FF
-  // F000-FFFF ROM   11111111  Cartridge ROM (4 Kbytes max)
-  // F000-F07F RAMW  11111111  Cartridge RAM Write (optional 128 bytes)
-  // F000-F0FF RAMW  11111111  Cartridge RAM Write (optional 256 bytes)
-  // F080-F0FF RAMR  11111111  Cartridge RAM Read (optional 128 bytes)
-  // F100-F1FF RAMR  11111111  Cartridge RAM Read (optional 256 bytes)
-  // 003F      BANK  ......11  Cart Bank Switching (for some 8K ROMs, 4x2K)
-  // FFF4-FFFB BANK  <strobe>  Cart Bank Switching (for ROMs greater 4K)
-  // FFFC-FFFD ENTRY 11111111  Cart Entrypoint (16bit pointer)
-  // FFFE-FFFF BREAK 11111111  Cart Breakpoint (16bit pointer)
-
-  // assign data_in = rom[address_bus[11:0]];
-                  // //tia_cs ? tia_dat_o :
-                  //  //pia_cs ? pia_dat_o :
-                  //  ram_cs ? ram[address_bus[ 6:0]] :
-                  //  rom_cs ? rom[address_bus[11:0]] : 
-                  //  8'h00; // pull-downs
+  // Atari 2600 schematics:
+  // - TIA select = ~A12 (-> TIA /CS0) & ~A7 (-> TIA /CS3)
+  // - PIA select = ~A12 (-> PIA /CS2) &  A7 (-> PIA  CS1) &  A9 ('1' -> PIA RS)
+  // - RAM select = ~A12 (-> PIA /CS2) &  A7 (-> PIA  CS1) & ~A9 ('0' -> PIA RS)
+  wire rom_cs = (address_bus[12] == 1);
+  wire tia_cs = (address_bus[12] == 0 && address_bus[7] == 0);
+  wire pia_cs = (address_bus[12] == 0 && address_bus[7] == 1 && address_bus[9] == 1);
+  wire ram_cs = (address_bus[12] == 0 && address_bus[7] == 1 && address_bus[9] == 0);
 
   always @(posedge clk) begin
     if (cpu_enable) begin
