@@ -39,8 +39,9 @@ module tt_um_rejunity_atari2600 (
   vga_hvsync_generator hvsync_gen(
     .clk(clk),
     .reset(~rst_n),
-    // .force_vsync(tia_ypos == 1),
-    // .force_vsync(tia_vsync),
+    // .force_vsync(tia_ypos <= 2),
+    // .force_vsync(tia_vsync), // <--- blinks, but otherwise image doesnt scroll
+    // .force_vsync(tia_vsync && tia_ypos > 2), // <--- blinks, but otherwise image doesnt scroll
     .force_vsync(0),
     .hsync(hsync),
     .vsync(vsync),
