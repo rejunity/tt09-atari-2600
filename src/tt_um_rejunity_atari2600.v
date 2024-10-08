@@ -211,8 +211,6 @@ module tt_um_rejunity_atari2600 (
   wire [7:0] tia_data_in = data_out;
   reg  [7:0] tia_data_out;
   reg  [6:0] tia_color_out;
-  // wire  [7:0] tia_data_out;
-  // wire  [6:0] tia_color_out;
   wire       tia_vblank;
   wire       tia_vsync;
   reg        tia_wr;
@@ -245,7 +243,7 @@ module tt_um_rejunity_atari2600 (
   );
 
   wire [7:0] pia_data_in = data_out;
-  wire [7:0] pia_data_out;
+  reg  [7:0] pia_data_out;
 
   pia pia (
     .clk_i(clk),
