@@ -51,7 +51,8 @@ module tt_um_rejunity_atari2600 (
 
   // Inputs
   // TODO: fix a weird mapping in TIA.v / PIA.v
-  wire [6:0] buttons = ui_in[6:0];
+  // localparam UP = 3, RIGHT = 6, LEFT = 5, DOWN = 4, SELECT = 2, RESET = 0, FIRE = 1;
+  wire [6:0] buttons = {~ui_in[6:1], ui_in[0]};
   wire [3:0] switches = {ena, ui_in[7], uio_in[1:0]};
 
   // UXL3S was: buttons({~r_btn[6:1], r_btn[0]})
