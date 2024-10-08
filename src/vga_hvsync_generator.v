@@ -9,11 +9,10 @@ To use:
 - Add a 3-bit (or more) "rgb" output to the top level
 */
 
-module vga_hvsync_generator(clk, reset, force_vsync, hsync, vsync, display_on, hpos, vpos);
+module vga_hvsync_generator(clk, reset, hsync, vsync, display_on, hpos, vpos);
 
   input clk;
   input reset;
-  input force_vsync;
   output reg hsync, vsync;
   output display_on;
   output reg [9:0] hpos;
@@ -45,7 +44,7 @@ module vga_hvsync_generator(clk, reset, force_vsync, hsync, vsync, display_on, h
   always @(posedge clk)
   begin
     hsync <= (hpos>=H_SYNC_START && hpos<=H_SYNC_END);
-    if(hmaxxed)
+    if (hmaxxed)
       hpos <= 0;
     else
       hpos <= hpos + 1;
@@ -55,14 +54,11 @@ module vga_hvsync_generator(clk, reset, force_vsync, hsync, vsync, display_on, h
   always @(posedge clk)
   begin
     vsync <= (vpos>=V_SYNC_START && vpos<=V_SYNC_END);
-    if(hmaxxed)
+    if (hmaxxed)
       if (vmaxxed)
         vpos <= 0;
       else
-        if (force_vsync)
-          vpos <= V_SYNC_START;
-        else
-          vpos <= vpos + 1;
+        vpos <= vpos + 1;
   end
   
   // display_on is set when beam is in "safe" visible frame

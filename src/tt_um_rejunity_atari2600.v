@@ -30,8 +30,9 @@ module tt_um_rejunity_atari2600 (
   assign uo_out = {hsync, B[0], G[0], R[0], vsync, B[1], G[1], R[1]};
 
   // Unused outputs assigned to 0.
-  assign uio_out = 0;
-  assign uio_oe  = 0;
+  // assign uio_out = 0;
+  assign uio_out = {6'd0, tia_vblank, tia_vsync};
+  assign uio_oe  = 8'hff;
 
   // Suppress unused signals warning
   wire _unused_ok = &{ena, ui_in, uio_in};
@@ -39,10 +40,6 @@ module tt_um_rejunity_atari2600 (
   vga_hvsync_generator hvsync_gen(
     .clk(clk),
     .reset(~rst_n),
-    // .force_vsync(tia_ypos <= 2),
-    // .force_vsync(tia_vsync), // <--- blinks, but otherwise image doesnt scroll
-    // .force_vsync(tia_vsync && tia_ypos > 2), // <--- blinks, but otherwise image doesnt scroll
-    .force_vsync(0),
     .hsync(hsync),
     .vsync(vsync),
     .display_on(video_active),
