@@ -215,7 +215,7 @@ module tt_um_rejunity_atari2600 (
       .rgb_24bpp(rgb_24bpp)
   );
 
-  assign {R, G, B} = (!video_active) ? 6'b00_00_00:
+  assign {R, G, B} = (!video_active || tia_vblank) ? 6'b00_00_00:
                                       {rgb_24bpp[23], rgb_24bpp[23-1],
                                        rgb_24bpp[15], rgb_24bpp[15-1],
                                        rgb_24bpp[ 7], rgb_24bpp[ 7-1]};
