@@ -101,13 +101,20 @@ int main(int argc, char* argv[]) {
             }
             if (keyb_state[SDL_SCANCODE_Q]) break;  // quit if user presses 'Q'
 
+
             top->btn_fire   = keyb_state[SDL_SCANCODE_SPACE];
             top->btn_up     = keyb_state[SDL_SCANCODE_UP];
             top->btn_down   = keyb_state[SDL_SCANCODE_DOWN];
             top->btn_left   = keyb_state[SDL_SCANCODE_LEFT];
             top->btn_right  = keyb_state[SDL_SCANCODE_RIGHT];
             top->btn_select = keyb_state[SDL_SCANCODE_RETURN];
-            top->btn_reset  = keyb_state[SDL_SCANCODE_SPACE];
+            top->btn_reset  = keyb_state[SDL_SCANCODE_ESCAPE];
+
+
+            top->sw1        = keyb_state[SDL_SCANCODE_1];
+            top->sw2        = keyb_state[SDL_SCANCODE_2];
+            top->sw3        = keyb_state[SDL_SCANCODE_3];
+            top->sw4        = keyb_state[SDL_SCANCODE_4];
 
             SDL_UpdateTexture(sdl_texture, NULL, screenbuffer, H_RES*sizeof(Pixel));
             SDL_RenderClear(sdl_renderer);

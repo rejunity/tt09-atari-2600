@@ -18,6 +18,10 @@ module top  (
     input  wire btn_down,
     input  wire btn_left,
     input  wire btn_right,
+    input  wire sw1,
+    input  wire sw2,
+    input  wire sw3,
+    input  wire sw4,
     // output      [9:0] xpos,
     // output      [9:0] ypos,
     // output      video_active,
@@ -36,9 +40,9 @@ module top  (
     reg [7:0] demo_out_pmod2;
     tt_um_rejunity_atari2600 demo(
         // localparam UP = 3, RIGHT = 6, LEFT = 5, DOWN = 4, SELECT = 2, RESET = 0, FIRE = 1;
-        .ui_in({btn_right, btn_left, btn_down, btn_up, btn_select, btn_fire, btn_reset}),
+        .ui_in({btn_right, btn_left, btn_down, btn_up, btn_select, btn_fire, ~btn_reset}),
         .uo_out(demo_out_pmod1),
-        .uio_in(8'h00),
+        .uio_in({4'b0000, sw4, sw3, sw2, sw1}),
         .uio_out(demo_out_pmod2),
         .uio_oe(),
         .ena(1'b1),

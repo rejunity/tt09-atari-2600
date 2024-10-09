@@ -31,11 +31,11 @@ module tt_um_rejunity_atari2600 (
 
   // Unused outputs assigned to 0.
   // assign uio_out = 0;
-  assign uio_out = {6'd0, tia_vblank, tia_vsync};
-  assign uio_oe  = 8'hff;
+  assign uio_out = {tia_vblank, tia_vsync, 6'd0};
+  assign uio_oe  = 8'b1100_0000;
 
   // Suppress unused signals warning
-  wire _unused_ok = &{ena, ui_in, uio_in};
+  wire _unused_ok = &{ena, ui_in, uio_in[7:4]};
 
   vga_hvsync_generator hvsync_gen(
     .clk(clk),
@@ -51,7 +51,7 @@ module tt_um_rejunity_atari2600 (
   // TODO: fix a weird mapping in TIA.v / PIA.v
   // localparam UP = 3, RIGHT = 6, LEFT = 5, DOWN = 4, SELECT = 2, RESET = 0, FIRE = 1;
   wire [6:0] buttons = {~ui_in[6:1], ui_in[0]};
-  wire [3:0] switches = {ena, ui_in[7], uio_in[1:0]};
+  wire [3:0] switches = ~uio_in[3:0];
 
   // UXL3S was: buttons({~r_btn[6:1], r_btn[0]})
 
