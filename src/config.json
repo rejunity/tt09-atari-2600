@@ -11,10 +11,6 @@
 
   "//": "Here are some of the variables you may want to change:",
 
-  "SYNTH_STRATEGY": "AREA 2",
-  "DESIGN_REPAIR_REMOVE_BUFFERS": 1,
-  "USE_LIGHTER": 1,
-
   "//": "PL_TARGET_DENSITY_PCT - You can increase this if Global Placement fails with error GPL-0302.",
   "//": "Users have reported that values up to 80 worked well for them.",
   "PL_TARGET_DENSITY_PCT": 70,
