@@ -190,33 +190,33 @@ module tt_um_rejunity_atari2600 (
   end
 
   wire [8:0] tia_ypos;
-  reg [15:0] tia_vsync_counter;
-  reg [15:0] tia_screen_counter;  
-  always @(posedge clk) begin
-    if (~rst_n) begin
-      tia_vsync_counter <= 0;
-      tia_screen_counter <= 0;
+  // reg [15:0] tia_vsync_counter;
+  // reg [15:0] tia_screen_counter;  
+  // always @(posedge clk) begin
+  //   if (~rst_n) begin
+  //     tia_vsync_counter <= 0;
+  //     tia_screen_counter <= 0;
     
-    end else begin
-      if (tia_vsync)
-        tia_vsync_counter <= tia_vsync_counter + tia_enable; // VGA clocks 0F6C .. 1125 .. 113A
-                                                            // TIA scr  clocks 2053  E7CA  E7CA
-                                                            // TIA sync clocks 233    274   272
-                                                            // TIA x            AE     AF    AE
-      else 
-        tia_vsync_counter <= 0;
+  //   end else begin
+  //     if (tia_vsync)
+  //       tia_vsync_counter <= tia_vsync_counter + tia_enable; // VGA clocks 0F6C .. 1125 .. 113A
+  //                                                           // TIA scr  clocks 2053  E7CA  E7CA
+  //                                                           // TIA sync clocks 233    274   272
+  //                                                           // TIA x            AE     AF    AE
+  //     else 
+  //       tia_vsync_counter <= 0;
 
-      if (tia_vsync)
-        tia_screen_counter <= 0;
-      else
-        tia_screen_counter <= tia_screen_counter + tia_enable; // TIA clocks E7CA
-    end
+  //     if (tia_vsync)
+  //       tia_screen_counter <= 0;
+  //     else
+  //       tia_screen_counter <= tia_screen_counter + tia_enable; // TIA clocks E7CA
+  //   end
 
-    // sync started x=3,y=2 | x=04, y=0 <--> x=AF,y=2
-    // sync started x=3,y=2 | x=04, y=0 <--> x=AE,y=2
-  end
+  //   // sync started x=3,y=2 | x=04, y=0 <--> x=AF,y=2
+  //   // sync started x=3,y=2 | x=04, y=0 <--> x=AE,y=2
+  // end
 
-  wire wait_for_vga_vsync = tia_ypos == 10 && vga_ypos < (480 + 10 + 2 + (10-3)*2);
+  wire wait_for_vga_vsync = tia_ypos == 4 && vga_ypos < (480 + 10 + 2);
 
   //(tia_xpos == 0 && vga_xpos == 0) &&
   // wire = stall_cpu & tia_vsync;
