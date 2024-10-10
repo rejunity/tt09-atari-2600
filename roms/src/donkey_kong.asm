@@ -619,7 +619,7 @@ CheckVerticalJoystickValues
    ldx #MAX_MARIO_BARREL_DOWN_LADDERS; maximum barrel ladders Mario can decend
    lda currentGameBoard             ; get current game board
    beq DetermineMarioDownLadder     ; branch if barrels
-   ldy #<FirefoxDownLadderTable - DownLadderTable + MAX_FIREFOX_LADDERS
+   ldy #<(FirefoxDownLadderTable - DownLadderTable + MAX_FIREFOX_LADDERS)
    ldx #MAX_FIREFOX_LADDERS         ; maximum number of ladders Mario can use
 DetermineMarioDownLadder
    lda marioVertPos                 ; get Mario vertical position
@@ -662,7 +662,7 @@ CheckForUpMotion
    ldy #MAX_MARIO_BARREL_UP_LADDERS ; offset for the up ladder table
    lda currentGameBoard             ; get current game board
    beq DetermineMarioUpLadder       ; branch if barrels   
-   ldy #<FirefoxUpLadderTable - UpLadderTable + MAX_FIREFOX_LADDERS
+   ldy #<(FirefoxUpLadderTable - UpLadderTable + MAX_FIREFOX_LADDERS)
    ldx #MAX_FIREFOX_LADDERS         ; maximum number of ladders Mario can use
 DetermineMarioUpLadder
    lda marioVertPos                 ; get Mario vertical position
