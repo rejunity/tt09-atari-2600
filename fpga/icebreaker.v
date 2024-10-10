@@ -132,18 +132,28 @@ module top (
     // reg [9:0] counter_h;
     // reg [9:0] counter_v;
 
+    // @TODO: reset on powerup
+    reg [31:0] reset_button_hold_counter;
+    always @(posedge clk_pixel) begin
+        if (~BTN_N)
+            reset_button_hold_counter <= reset_button_hold_counter + 1;
+        else
+            reset_button_hold_counter <= 0;
+    end
+    wire reset_button = reset_button_hold_counter >= 60*800*525; // 1 sec
+
     reg [7:0] demo_out_pmod1;
     reg [7:0] demo_out_pmod2;
     tt_um_rejunity_atari2600 demo(
         // localparam UP = 3, RIGHT = 6, LEFT = 5, DOWN = 4, SELECT = 2, RESET = 0, FIRE = 1;
-        .ui_in({BTN2, BTN3, BTN2, BTN3, 1'b0, BTN1, 1'b0}),
+        .ui_in({BTN3, BTN2, BTN3, BTN2, 1'b0, BTN1, BTN_N}),
         .uo_out(demo_out_pmod1),
         .uio_in(8'h00),
         .uio_out(demo_out_pmod2),
         .uio_oe(),
         .ena(1'b1),
         .clk(clk_pixel),
-        .rst_n(BTN_N)
+        .rst_n(~reset_button)
     );
 
     // dummy tests
