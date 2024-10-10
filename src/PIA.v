@@ -77,8 +77,15 @@ module pia (
       if (enable_i) begin
         if (reset_timer > 0) begin
           time_counter <= 0;
-          intim <= reset_timer;
-          instat <= 2'b0;
+          intim <= reset_timer - 1; // Added -1 unlike in original lawrie source
+                                    // According to specs: The timer is decremented once immediately after writing
+                                    // Otherwise it seems that games produce longer frames than VGA allows!
+                                    // Also handle immediate underflow in case of 0 value
+          if (reset_timer == 0) begin
+            underflow <= 1;
+            instat <= 2'b11;
+          end else
+            instat <= 2'b0;
         end else begin
           time_counter <= time_counter + 1;
         end
