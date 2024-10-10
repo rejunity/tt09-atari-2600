@@ -241,10 +241,10 @@ module tt_um_rejunity_atari2600 (
   // wire wait_for_vga_vsync = 
   //   ( tia_ypos * 228 + tia_xpos == (228*3+0) &&
   //     vga_ypos * 800 + vga_xpos <= (480 + 10 + 2) * 800);
-    //(tia_ypos * 228 + tia_xpos < V_SYNC_END * 800 + tia_xpos < V_SYNC_END * 800);
+  //(tia_ypos * 228 + tia_xpos < V_SYNC_END * 800 + tia_xpos < V_SYNC_END * 800);
 
 
-  ;// tia_vsync_counter >= 6*800 && !vsync;// = tia_ypos == 2 && vga_ypos < 10'h1EA;
+  // tia_vsync_counter >= 6*800 && !vsync;// = tia_ypos == 2 && vga_ypos < 10'h1EA;
 
   // wire wait_for_vga_vsync = tia_vsync_counter > 0;// tia_vsync_counter >= 6*800 && !vsync;// = tia_ypos == 2 && vga_ypos < 10'h1EA;
   // reg wait_for_vga_vsync;
