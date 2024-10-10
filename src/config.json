@@ -17,6 +17,8 @@
 
   "//": "PL_TARGET_DENSITY - Open Lane 1 density setting",
   "PL_TARGET_DENSITY": 0.7,
+  "//": "The maximum number of iterations for global router repair_antenna. (Default: 15)",
+  "GLB_RT_ANT_ITERS": 1000,
 
   "//": "CLOCK_PERIOD - Increase this in case you are getting setup time violations.",
   "//": "The value is in nanoseconds, so 20ns == 50MHz.",
