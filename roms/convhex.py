@@ -10,13 +10,14 @@ i = 0
 filename = sys.argv[1] + '.bin'
 with open(filename, 'rb') as f:
     content = f.read()
-    for x in content:
-        # Convert the integer to a bytes object of length 1
-        # before passing it to hexlify
-        print(binascii.hexlify(bytes([x])).decode('utf-8'))
-        i += 1
-        if i == 4096:
-            break
+    while i < 4096:
+        for x in content:
+            # Convert the integer to a bytes object of length 1
+            # before passing it to hexlify
+            print(binascii.hexlify(bytes([x])).decode('utf-8'))
+            i += 1
+            if i == 4096:
+                break
 
 #import binascii
 #import sys
