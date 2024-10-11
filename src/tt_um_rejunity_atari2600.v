@@ -182,8 +182,7 @@ module tt_um_rejunity_atari2600 (
   // `endif
  
 
-  // reg [6:0] scanline [159:0];
-  reg [7:0] scanline [255:0];
+  reg [6:0] scanline [159:0];
   wire [7:0] tia_xpos;
   always @(posedge clk) begin
     if (tia_xpos < 160)
