@@ -182,7 +182,7 @@ module tt_um_rejunity_atari2600 (
   // `endif
  
 
-  reg [6:0] scanline [159:0];
+  reg [6:0] scanline [255:0];
   wire [7:0] tia_xpos;
   always @(posedge clk) begin
     if (tia_xpos < 160)
@@ -265,7 +265,7 @@ module tt_um_rejunity_atari2600 (
   //     tia_vsync_last <= tia_vsync;
   //   end
 
-  wire [6:0] hue_luma = vga_xpos < 640 ? scanline[vga_xpos / 4] : 0;
+  wire [6:0] hue_luma = vga_xpos[9:2] < 160 ? scanline[vga_xpos[9:2]] : 0;
   wire [3:0] hue = hue_luma[6:3];
   wire [3:0] luma = {hue_luma[2:0], 1'b0};
   wire [23:0] rgb_24bpp;
