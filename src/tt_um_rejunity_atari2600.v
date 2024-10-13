@@ -182,17 +182,18 @@ module tt_um_rejunity_atari2600 (
   // `endif
  
 
-  // Pair of power-of-2 registers to form a 160 scanline RAM: 128 + 32 = 160
-  reg [6:0] scanline128[127:0];
-  reg [6:0] scanline32 [ 31:0];
-  wire [7:0] tia_xpos;
-  always @(posedge clk) begin
-    if (tia_xpos < 128)
-      scanline128[tia_xpos] <= tia_color_out;
-    else if (tia_xpos < 160)
-      scanline32 [tia_xpos[4:0]] <= tia_color_out;
-  end
+  // Pair of power-of-2 registersto form a 160 scanline RAM: 128 + 32 = 160
 
+  // reg [6:0] scanline128[127:0];
+  // reg [6:0] scanline32 [ 31:0];
+  // always @(posedge clk) begin
+  //   if (tia_xpos < 128)
+  //     scanline128[tia_xpos] <= tia_color_out;
+  //   else if (tia_xpos < 160)
+  //     scanline32 [tia_xpos[4:0]] <= tia_color_out;
+  // end
+
+  wire [7:0] tia_xpos;
   wire [8:0] tia_ypos;
   // reg [15:0] tia_vsync_counter;
   // reg [15:0] tia_screen_counter;  
@@ -269,10 +270,20 @@ module tt_um_rejunity_atari2600 (
   //     tia_vsync_last <= tia_vsync;
   //   end
 
+
+  reg [6:0] hue_luma;
+  scanline scanline(
+    .clk(clk),
+    .w_addr(tia_xpos),
+    .i_data(tia_color_out),
+    .r_addr(vga_xpos[9:2]),
+    .o_data(hue_luma)
+  );
+
   // wire [6:0] hue_luma = vga_xpos[9:2] < 160 ? scanline[vga_xpos[9:2]] : 0;
-  wire [6:0] hue_luma = vga_xpos[9:2] < 128 ? scanline128[vga_xpos[9:2]] :
-                        vga_xpos[9:2] < 160 ? scanline32 [vga_xpos[6:2]] :
-                        0;
+  // wire [6:0] hue_luma = vga_xpos[9:2] < 128 ? scanline128[vga_xpos[9:2]] :
+  //                       vga_xpos[9:2] < 160 ? scanline32 [vga_xpos[6:2]] :
+  //                       0;
   wire [3:0] hue = hue_luma[6:3];
   wire [3:0] luma = {hue_luma[2:0], 1'b0};
   wire [23:0] rgb_24bpp;
@@ -417,4 +428,21 @@ module tt_um_rejunity_atari2600 (
     if (tia_cs) data_in <= tia_data_out;
     if (pia_cs) data_in <= pia_data_out;
   end
+endmodule
+
+module scanline (input clk, input [7:0] r_addr, input [7:0] w_addr, input [6:0] i_data, output [6:0] o_data);
+  reg [6:0] pixels [255:0];
+
+  generate
+    genvar i;
+    for (i = 0; i < 256; i = i + 1) begin:slice
+      always @(posedge clk) begin
+        if (i < 160 && w_addr == i)
+          pixels[i] <= i_data;
+      end
+    end
+  endgenerate
+
+  assign o_data = (r_addr < 160) ? pixels[r_addr] : 7'bx;
+
 endmodule
