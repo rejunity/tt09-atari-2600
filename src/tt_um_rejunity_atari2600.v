@@ -26,17 +26,25 @@ module tt_um_rejunity_atari2600 (
   wire [9:0] vga_xpos;
   wire [9:0] vga_ypos;
 
-  wire [4:0] audio_wip = audio_l + audio_r;
+  wire [4:0] audio = audio_l + audio_r;
+  reg [5:0] audio_pwm_accumulator;
+  always @(posedge clk) begin
+    if (~rst_n)
+      audio_pwm_accumulator <= 0;
+    else
+      audio_pwm_accumulator <= audio_pwm_accumulator[4:0] + audio;
+  end
+  wire audio_pwm = audio_pwm_accumulator[5];
 
   // TinyVGA PMOD
   assign uo_out = {hsync, B[0], G[0], R[0], vsync, B[1], G[1], R[1]};
 
   // Unused outputs assigned to 0.
-  assign uio_out = {tia_vblank, tia_vsync, audio_wip[4-:2], 4'b0};
-  assign uio_oe  = 8'b1111_0000;
+  assign uio_out = {audio_pwm, audio_pwm, tia_vblank, tia_vsync, 2'b0, audio_pwm, audio_pwm};
+  assign uio_oe  = 8'b1111_0011;
 
   // Suppress unused signals warning
-  wire _unused_ok = &{ena, uio_in[7:4]};
+  wire _unused_ok = &{ena, uio_in[3:2]};
 
   vga_hvsync_generator hvsync_gen(
     .clk(clk),

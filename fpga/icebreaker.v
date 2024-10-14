@@ -142,18 +142,18 @@ module top (
     end
     wire reset_button = reset_button_hold_counter >= 60*800*525; // 1 sec
 
-    reg [7:0] demo_out_pmod1;
-    reg [7:0] demo_out_pmod2;
-    tt_um_rejunity_atari2600 demo(
+    reg [7:0] out_pmod1;
+    reg [7:0] out_pmod2;
+    tt_um_rejunity_atari2600 atari2600(
         // localparam UP = 3, RIGHT = 6, LEFT = 5, DOWN = 4, SELECT = 2, RESET = 0, FIRE = 1;
         .ui_in({BTN3, BTN2, BTN3, BTN2, 1'b0, BTN1, BTN_N}),
-        .uo_out(demo_out_pmod1),
+        .uo_out(out_pmod1),
         .uio_in(8'h00),
-        .uio_out(demo_out_pmod2),
+        .uio_out(out_pmod2),
         .uio_oe(),
         .ena(1'b1),
         .clk(clk_pixel),
-        .rst_n(~reset_button)
+        .rst_n(~(reset_button || reset_on_powerup))
     );
 
     // dummy tests
@@ -166,10 +166,10 @@ module top (
     // VGA 6bpp
     assign {
             vga_6bpp_hsync, vga_6bpp_b[0], vga_6bpp_g[0], vga_6bpp_r[0],
-            vga_6bpp_vsync, vga_6bpp_b[1], vga_6bpp_g[1], vga_6bpp_r[1]} = demo_out_pmod1
-                                                                         ^ BTN1 * (demo_out_pmod2[0] * 8'b0111_0111);
+            vga_6bpp_vsync, vga_6bpp_b[1], vga_6bpp_g[1], vga_6bpp_r[1]} = out_pmod1
+                                                                         ^ BTN1 * (out_pmod2[0] * 8'b0111_0111);
 
-    assign pmod_1b = demo_out_pmod2;
+    assign pmod_1b = {8{out_pmod2[0]}};
 
     // assign {vga_6bpp_r, vga_6bpp_g, vga_6bpp_b,
     //         vga_6bpp_hsync, vga_6bpp_vsync} = {pixel_rgb[9:8], pixel_rgb[5:4], pixel_rgb[1:0], h_sync, v_sync};
