@@ -108,7 +108,6 @@ module top (
     reg [31:0] counter;
     reg flip;
     always @(posedge clk_pixel) begin
-        // if (counter_v == 0 && counter_h == 0)
         counter <= counter + 1;
         if (counter == 60*800*525) begin
             flip <= ~flip;
@@ -132,7 +131,11 @@ module top (
     // reg [9:0] counter_h;
     // reg [9:0] counter_v;
 
-    // @TODO: reset on powerup
+    reg reset_on_powerup = 1;
+    always @(posedge clk_pixel)
+        if (reset_on_powerup & counter > 10)
+            reset_on_powerup <= 0;
+
     reg [31:0] reset_button_hold_counter;
     always @(posedge clk_pixel) begin
         if (~BTN_N)
