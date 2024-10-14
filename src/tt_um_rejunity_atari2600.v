@@ -182,15 +182,11 @@ module tt_um_rejunity_atari2600 (
   // `endif
  
 
-  // Pair of power-of-2 registers to form a 160 scanline RAM: 128 + 32 = 160
-  reg [6:0] scanline128[127:0];
-  reg [6:0] scanline32 [ 31:0];
+  reg [6:0] scanline [255:0];
   wire [7:0] tia_xpos;
   always @(posedge clk) begin
-    if (tia_xpos < 128)
-      scanline128[tia_xpos] <= tia_color_out;
-    else if (tia_xpos < 160)
-      scanline32 [tia_xpos[4:0]] <= tia_color_out;
+    if (tia_xpos < 160)
+      scanline[tia_xpos] <= tia_color_out;
   end
 
   wire [8:0] tia_ypos;
@@ -269,10 +265,7 @@ module tt_um_rejunity_atari2600 (
   //     tia_vsync_last <= tia_vsync;
   //   end
 
-  // wire [6:0] hue_luma = vga_xpos[9:2] < 160 ? scanline[vga_xpos[9:2]] : 0;
-  wire [6:0] hue_luma = vga_xpos[9:2] < 128 ? scanline128[vga_xpos[9:2]] :
-                        vga_xpos[9:2] < 160 ? scanline32 [vga_xpos[6:2]] :
-                        0;
+  wire [6:0] hue_luma = vga_xpos[9:2] < 160 ? scanline[vga_xpos[9:2]] : 0;
   wire [3:0] hue = hue_luma[6:3];
   wire [3:0] luma = {hue_luma[2:0], 1'b0};
   wire [23:0] rgb_24bpp;
