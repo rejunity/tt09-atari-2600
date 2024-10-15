@@ -35,35 +35,6 @@ module vga_pll(
     );
 endmodule
 
-// module vga_sync_generator(
-//     input clk,
-//     output h_sync,
-//     output v_sync,
-//     output is_display_area,
-//     output reg[9:0] counter_h,
-//     output reg[9:0] counter_v
-// );
-
-//     always @(posedge clk) begin
-//         h_sync <= (counter_h >= 639+16 && counter_h < 639+16+96);     // invert: negative polarity
-//         v_sync <= (counter_v >= 479+10 && counter_v < 479+10+2);      // invert: negative polarity
-//         is_display_area <= (counter_h <= 639 && counter_v <= 479);
-//     end
-
-//     always @(posedge clk)
-//         if (counter_h == 799) begin
-//             counter_h <= 0;
-
-//             if (counter_v == 525)
-//                 counter_v <= 0;
-//             else
-//                 counter_v <= counter_v + 1;
-//         end
-//         else
-//             counter_h <= counter_h + 1;
-
-// endmodule
-
 module top (
     input  CLK,
 
@@ -127,10 +98,6 @@ module top (
         .locked()
     );
 
-    // reg h_sync, v_sync, is_display_area;
-    // reg [9:0] counter_h;
-    // reg [9:0] counter_v;
-
     reg reset_on_powerup = 1;
     always @(posedge clk_pixel)
         if (reset_on_powerup & counter > 10)
@@ -159,33 +126,33 @@ module top (
         .rst_n(~(reset_button || reset_on_powerup))
     );
 
-    // dummy tests
-    // wire pixel_r = is_display_area & counter_h[4];
-    // wire pixel_g = is_display_area & counter_h[2];
-    // wire pixel_b = is_display_area & counter_h[3];
-    // wire [11:0] pixel_rgb = {counter_h[7:4], counter_v[7:4], 4'h4} * is_display_area;
-
 `ifdef VGA_6BPP
-    // VGA 6bpp
+    // TinyVGA by Mole99
     assign {
             vga_6bpp_hsync, vga_6bpp_b[0], vga_6bpp_g[0], vga_6bpp_r[0],
             vga_6bpp_vsync, vga_6bpp_b[1], vga_6bpp_g[1], vga_6bpp_r[1]} = out_pmod1
                                                                          ^ BTN1 * (out_pmod2[0] * 8'b0111_0111);
 
     assign pmod_1b = {8{out_pmod2[0]}};
-
-    // assign {vga_6bpp_r, vga_6bpp_g, vga_6bpp_b,
-    //         vga_6bpp_hsync, vga_6bpp_vsync} = {pixel_rgb[9:8], pixel_rgb[5:4], pixel_rgb[1:0], h_sync, v_sync};
 `elsif VGA_12BPP
-    // VGA 12bpp
+    // VGA double PMOD from Digilent
     assign {vga_12bpp_r, vga_12bpp_g, vga_12bpp_b,
-            vga_12bpp_hsync, vga_12bpp_vsync} = {pixel_rgb, h_sync, v_sync};
+            vga_12bpp_hsync, vga_12bpp_vsync} = {pixel_12bpp_rgb, h_sync, v_sync};
 `elsif DVI
-    // DVI/HDMI
+    // DVI/HDMI double PMOD from Digilent
+    wire is_display_area = !h_sync && !v_sync;
     assign {dvi_r, dvi_g, dvi_b,
-            dvi_hsync, dvi_vsync, dvi_de, dvi_clk} = {pixel_rgb, h_sync, v_sync, is_display_area, clk_pixel};
+            dvi_hsync, dvi_vsync, dvi_de, dvi_clk} = {pixel_12bpp_rgb, h_sync, v_sync, is_display_area, clk_pixel};
 `else
 `endif
 
+`ifdef VGA_6BPP
+`else 
+    wire h_sync = out_pmod1[7];
+    wire v_sync = out_pmod1[3];
+    wire [11:0] pixel_12bpp_rgb =  {out_pmod1[4], out_pmod1[0], 2'b00,
+                                    out_pmod1[5], out_pmod1[1], 2'b00,
+                                    out_pmod1[6], out_pmod1[2], 2'b00};
+`endif
 
 endmodule
