@@ -86,6 +86,8 @@ module pia (
             instat <= 2'b11;
           end else
             instat <= 2'b0;
+
+          reset_timer <= 0;
         end else begin
           time_counter <= time_counter + 1;
         end
