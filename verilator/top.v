@@ -25,6 +25,8 @@ module top  (
     // output      [9:0] xpos,
     // output      [9:0] ypos,
     // output      video_active,
+    output      tia_vsync,
+    output      tia_vblank,
     output      vsync,
     output      hsync,
     output      [7:0] r,
@@ -56,8 +58,11 @@ module top  (
 
     // assign pmod_1b = demo_out_pmod2;
 
-    assign r = {vga_6bpp_r, 6'd0}; 
+    assign r = {vga_6bpp_r, 6'd0};
     assign g = {vga_6bpp_g, 6'd0};
     assign b = {vga_6bpp_b, 6'd0};
+
+    assign tia_vblank = demo_out_pmod2[5];
+    assign tia_vsync  = demo_out_pmod2[4];
 
 endmodule

@@ -132,6 +132,11 @@ int main(int argc, char* argv[]) {
             p.g = top->g;
             p.r = top->r;
             p.a = 0xFF;
+
+            if (top->tia_vblank)
+                p.r = 0x30;
+            if (top->tia_vsync)
+                p.g = 0xFF;
         }        
     }
 
