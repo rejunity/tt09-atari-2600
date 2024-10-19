@@ -4,6 +4,7 @@
  */
 
 `default_nettype none
+`define QSPI_ROM
 
 module tt_um_rejunity_atari2600 (
     input  wire [7:0] ui_in,    // Dedicated inputs
@@ -39,12 +40,15 @@ module tt_um_rejunity_atari2600 (
   // TinyVGA PMOD
   assign uo_out = {hsync, B[0], G[0], R[0], vsync, B[1], G[1], R[1]};
 
-  // Unused outputs assigned to 0.
-  assign uio_out = {audio_pwm, audio_pwm, tia_vblank, tia_vsync, 2'b0, audio_pwm, audio_pwm};
-  assign uio_oe  = 8'b1111_0011;
+  // Audio PMOD + ROM SPI
+  // 1 bidirectional pin is unused (tia_vsync for diagostics in Verilator)
+  // TODO: output video_active for DVI instead
+  assign uio_out = {audio_pwm, tia_vsync, spi_select, spi_clk_out, spi_data_out};
+  assign uio_oe  = {     1'b1,      1'b1,       1'b1,        1'b1,  spi_data_oe};
+  assign spi_data_in = uio_in[3:0];
 
   // Suppress unused signals warning
-  wire _unused_ok = &{ena, uio_in[3:2]};
+  wire _unused_ok = &{ena, uio_in[7:4]};
 
   vga_hvsync_generator hvsync_gen(
     .clk(clk),
@@ -60,8 +64,12 @@ module tt_um_rejunity_atari2600 (
   // TODO: fix a weird mapping in TIA.v / PIA.v
   // localparam UP = 3, RIGHT = 6, LEFT = 5, DOWN = 4, SELECT = 2, RESET = 0, FIRE = 1;
   wire [6:0] buttons = {~ui_in[6:1], ui_in[0]};
-  wire [3:0] switches = ~uio_in[3:0];
-
+`ifdef QSPI_ROM
+  wire [3:0] switches = 4'b1111;
+`else
+  wire [3:0] switches = ~uio_in[3:0];  // TODO: pass switches together with input
+                                                  // adopt NES controller format
+`endif
   // UXL3S was: buttons({~r_btn[6:1], r_btn[0]})
 
   // ===============================================================
@@ -625,4 +633,44 @@ module tt_um_rejunity_atari2600 (
     if (tia_cs) data_in <= tia_data_out;
     if (pia_cs) data_in <= pia_data_out;
   end
+
+  // TODO: support 128KB cartridges (17 bit address instead of 15 bit)
+  wire [15:0] spi_address = address_bus[11:0] + 16'd4096; // 32KB cartridge only
+  wire        spi_start_read = cpu_enable && !stall_cpu && rom_cs;
+
+  wire  [3:0] spi_data_in;
+  reg   [3:0] spi_data_out;
+  wire  [3:0] spi_data_oe;
+  wire        spi_select;
+  reg         spi_clk_out;
+  reg         spi_data_ready;
+  wire        spi_busy;
+  `ifdef QSPI_ROM
+  qspi_flash_controller #(.DATA_WIDTH_BYTES(1), .ADDR_BITS(16)) flash_rom (
+    .clk(clk),
+    .rstn(rst_n),
+
+    // External SPI interface
+    .spi_data_in(spi_data_in),
+    .spi_data_out(spi_data_out),
+    .spi_data_oe(spi_data_oe),
+    .spi_select(spi_select),
+    .spi_clk_out(spi_clk_out),
+
+    // Internal interface for reading/writing data
+    .addr_in(spi_address),
+    .start_read(spi_start_read),
+    .stall_read(1'b0),
+    .stop_read(1'b0), // TODO: does stopping read after 1 byte makes subsequent command faster?
+
+    .data_out(rom_data),
+    .data_ready(spi_data_ready),
+    .busy(spi_busy)
+  );
+  `else
+  always @(posedge clk) // ROM on board
+    rom_data <= rom[address_bus[11:0]]; // makes yosys iCE40 BRAM inference happy
+                                        // and allows it to be used as ROM storage
+  `endif
+
 endmodule
