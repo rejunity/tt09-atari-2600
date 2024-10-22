@@ -33,8 +33,8 @@ module vga_hvsync_generator(clk, reset, hsync, vsync, display_on, hpos, vpos);
   parameter H_SYNC_START    = H_DISPLAY + H_FRONT;
   parameter H_SYNC_END      = H_DISPLAY + H_FRONT + H_SYNC - 1;
   parameter H_MAX           = H_DISPLAY + H_BACK + H_FRONT + H_SYNC - 1;
-  parameter V_SYNC_START    = V_DISPLAY + V_BOTTOM;
-  parameter V_SYNC_END      = V_DISPLAY + V_BOTTOM + V_SYNC - 1;
+  parameter V_SYNC_START    = 0;
+  parameter V_SYNC_END      = 0 + V_SYNC - 1;
   parameter V_MAX           = V_DISPLAY + V_TOP + V_BOTTOM + V_SYNC - 1;
 
   wire hmaxxed = (hpos == H_MAX) || reset;	// set when hpos is maximum
