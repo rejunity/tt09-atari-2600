@@ -418,16 +418,18 @@ module tt_um_rejunity_atari2600 (
   wire ram_cs = (address_bus[12] == 0 && address_bus[7] == 1 && address_bus[9] == 0);
 
   reg [7:0] rom_data;
+  reg [7:0] ram_data;
   always @(posedge clk) begin
     // ROM
     rom_data <= rom[address_bus[11:0]]; // makes yosys iCE40 BRAM inference happy
                                         // and allows it to be used as ROM storage
+    ram_data <= ram[address_bus[ 6:0]]; // makes yosys iCE40 BRAM inference happy
 
     // CPU writes
     if (cpu_enable && write_enable && ram_cs) ram[address_bus[6:0]] <= data_out;
 
     // CPU reads
-    if (ram_cs) data_in <= ram[address_bus[ 6:0]];
+    if (ram_cs) data_in <= ram_data; // ram[address_bus[ 6:0]];
     if (rom_cs) data_in <= rom_data;
     if (tia_cs) data_in <= tia_data_out;
     if (pia_cs) data_in <= pia_data_out;
