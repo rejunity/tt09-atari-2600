@@ -150,9 +150,9 @@ module tt_um_rejunity_atari2600 (
       
       if (clk_counter_next == 21) begin
         clk_counter <= 0;
-        // turbo <= stall_cpu; // tia_vblank makes sprites jump in RiverRaid
+        // turbo <= stall_cpu;
         // turbo <= stall_cpu && tia_vblank; // tia_vblank makes sprites jump in RiverRaid
-        turbo <= stall_cpu && tia_vsync;
+        // turbo <= stall_cpu && tia_vsync;
         // turbo <= 0;
       end else
         clk_counter <= clk_counter_next;
@@ -224,7 +224,21 @@ module tt_um_rejunity_atari2600 (
   //   // sync started x=3,y=2 | x=04, y=0 <--> x=AE,y=2
   // end
 
-  wire wait_for_vga_vsync = tia_ypos == 4 && vga_ypos < (480 + 10 + 2);
+  // wire wait_for_vga_vsync = tia_ypos == 4 && vga_ypos < (480 + 10 + 2);
+  // wire wait_for_vga_vsync = tia_ypos == 4 && vga_ypos > 10;
+  // wire wait_for_vga_vsync = tia_ypos > 4 && vga_ypos > tia_ypos * 2;
+  wire wait_for_vga_vsync = tia_ypos > 4 && vga_ypos > tia_ypos * 2 && vga_xpos > tia_xpos * 4;
+  // wire wait_for_vga_vsync = tia_ypos == 260 && vga_ypos < 260*2-1;
+  // wire wait_for_vga_vsync = tia_ypos == 40 && vga_ypos > 40*2;
+  reg tia_vsync_last;
+  always @(posedge clk)
+    tia_vsync_last <= tia_vsync;
+
+
+  reg [3:0] frame_counter;
+  always @(posedge clk)
+    if (tia_vsync_last != tia_vsync && tia_vsync)
+      frame_counter <= frame_counter + 1'b1;
 
   //(tia_xpos == 0 && vga_xpos == 0) &&
   // wire = stall_cpu & tia_vsync;
