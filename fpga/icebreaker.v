@@ -126,13 +126,14 @@ module top (
         .rst_n(~(reset_button || reset_on_powerup))
     );
 
+    assign LED5 = out_pmod2[0];
+
 `ifdef VGA_6BPP
     // TinyVGA by Mole99
     assign {
             vga_6bpp_hsync, vga_6bpp_b[0], vga_6bpp_g[0], vga_6bpp_r[0],
-            vga_6bpp_vsync, vga_6bpp_b[1], vga_6bpp_g[1], vga_6bpp_r[1]} = out_pmod1
-                                                                         ^ BTN1 * (out_pmod2[0] * 8'b0111_0111);
-
+            vga_6bpp_vsync, vga_6bpp_b[1], vga_6bpp_g[1], vga_6bpp_r[1]} = out_pmod1;
+                                                                         // ^ BTN1 * (out_pmod2[0] * 8'b0111_0111);
     assign pmod_1b = {8{out_pmod2[0]}};
 `elsif VGA_12BPP
     // VGA double PMOD from Digilent
