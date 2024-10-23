@@ -499,7 +499,10 @@ module tt_um_rejunity_atari2600 (
   reg stall_cpu;
 
   always @(posedge clk)
-    address_bus_r <= address_bus;
+    if (~rst_n)
+      address_bus_r <= 0;
+    else
+      address_bus_r <= address_bus;
 
   // roms/pong.asm:
   //                Clear label is reached just after    6 us
