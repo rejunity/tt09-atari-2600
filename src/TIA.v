@@ -519,7 +519,7 @@ module poly5 (
 reg [4:0] x;
 
 always @(posedge clk) begin
-  if (reset) x <= 5'b11111;
+  if (reset) x <= 5'b1_1111;
   else if (ena) x <= {x[2] ^ x[0], x[4:1]};
 end
 
@@ -537,7 +537,7 @@ module poly9 (
 reg [8:0] x;
 
 always @(posedge clk) begin
-  if (reset) x <= 5'b11111;
+  if (reset) x <= 9'b1_1111_1111;
   else if (ena) x <= {x[4] ^ x[0], x[8:1]};
 end
 
