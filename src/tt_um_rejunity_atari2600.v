@@ -240,10 +240,12 @@ module tt_um_rejunity_atari2600 (
     if (~rst_n)
       frame_counter <= 0;
     else if (tia_vsync_last != tia_vsync && tia_vsync)
-      frame_counter <=((frame_counter[1:0] == 0) ? 2 : 
-                       (frame_counter[1:0] == 1) ? 3 : 
-                       (frame_counter[1:0] == 2) ? 1 : 
-                                              0) + 3'b100*~frame_counter[2];
+      frame_counter <={((frame_counter[2:1] == 0) ? 2'd1 : 
+                        (frame_counter[2:1] == 1) ? 2'd3 : 
+                        (frame_counter[2:1] == 2) ? 2'd0 :
+                                                    2'd2),
+                        ~frame_counter[0]};
+
       // frame_counter <= frame_counter + 3;
       // frame_counter <= frame_counter ^ 3'b101;
       // frame_counter <= (|frame_counter) ? {frame_counter[6:0],  frame_counter[3] ^ x[1] } : 1;
@@ -323,9 +325,9 @@ module tt_um_rejunity_atari2600 (
   reg [9:0] g_pwm_accumB;
   reg [9:0] b_pwm_accumB;
 
-  wire [9:0] r_pwm_accum_ = (vga_ypos[0] == frame_counter[2]) ? r_pwm_accumA: r_pwm_accumB;
-  wire [9:0] g_pwm_accum_ = (vga_ypos[0] == frame_counter[2]) ? g_pwm_accumA: g_pwm_accumB;
-  wire [9:0] b_pwm_accum_ = (vga_ypos[0] == frame_counter[2]) ? b_pwm_accumA: b_pwm_accumB;
+  wire [9:0] r_pwm_accum_ = (vga_ypos[0] == frame_counter[0]) ? r_pwm_accumA: r_pwm_accumB;
+  wire [9:0] g_pwm_accum_ = (vga_ypos[0] == frame_counter[0]) ? g_pwm_accumA: g_pwm_accumB;
+  wire [9:0] b_pwm_accum_ = (vga_ypos[0] == frame_counter[0]) ? b_pwm_accumA: b_pwm_accumB;
   
   // wire [3:0] src_mul = 3;//(vga_ypos[0] == 1 && vga_xpos[1:0] == 0) ? 3 : 3;
   wire [3:0] src_mul = (vga_ypos[0] == 1 && vga_xpos[1:0] == 0) ? 4 : 3;
@@ -453,13 +455,13 @@ module tt_um_rejunity_atari2600 (
       g_pwm_accum <= g_accum + g_src;
       b_pwm_accum <= b_accum + b_src;
 
-      r_pwm_accumA <= (vga_xpos[1:0]==(frame_counter[1:0]+0)?0:((r_pwm_accumA & 10'h0FF)>>1)) + (rgb_24bpp[23:16] * 3);
-      g_pwm_accumA <= (vga_xpos[1:0]==(frame_counter[1:0]+0)?0:((g_pwm_accumA & 10'h0FF)>>1)) + (rgb_24bpp[15: 8] * 3);
-      b_pwm_accumA <= (vga_xpos[1:0]==(frame_counter[1:0]+0)?0:((b_pwm_accumA & 10'h0FF)>>1)) + (rgb_24bpp[ 7: 0] * 3);
+      r_pwm_accumA <= (vga_xpos[1:0]==(frame_counter[2:1]+0)?0:((r_pwm_accumA & 10'h0FF)>>1)) + (rgb_24bpp[23:16] * 3);
+      g_pwm_accumA <= (vga_xpos[1:0]==(frame_counter[2:1]+0)?0:((g_pwm_accumA & 10'h0FF)>>1)) + (rgb_24bpp[15: 8] * 3);
+      b_pwm_accumA <= (vga_xpos[1:0]==(frame_counter[2:1]+0)?0:((b_pwm_accumA & 10'h0FF)>>1)) + (rgb_24bpp[ 7: 0] * 3);
 
-      r_pwm_accumB <= (vga_xpos[1:0]==(frame_counter[1:0]+0)?0:((r_pwm_accumB & 10'h0FF)>>1)) + (rgb_24bpp[23:16] * 3) + ((vga_xpos[1:0]==(frame_counter[1:0]+0)?0:((r_pwm_accumA & 10'h0FF)>>1)) + (rgb_24bpp[23:16] * 3) & 10'h0FF);
-      g_pwm_accumB <= (vga_xpos[1:0]==(frame_counter[1:0]+0)?0:((g_pwm_accumB & 10'h0FF)>>1)) + (rgb_24bpp[15: 8] * 3) + ((vga_xpos[1:0]==(frame_counter[1:0]+0)?0:((g_pwm_accumA & 10'h0FF)>>1)) + (rgb_24bpp[15: 8] * 3) & 10'h0FF);
-      b_pwm_accumB <= (vga_xpos[1:0]==(frame_counter[1:0]+0)?0:((b_pwm_accumB & 10'h0FF)>>1)) + (rgb_24bpp[ 7: 0] * 3) + ((vga_xpos[1:0]==(frame_counter[1:0]+0)?0:((b_pwm_accumA & 10'h0FF)>>1)) + (rgb_24bpp[ 7: 0] * 3) & 10'h0FF);
+      r_pwm_accumB <= (vga_xpos[1:0]==(frame_counter[2:1]+0)?0:((r_pwm_accumB & 10'h0FF)>>1)) + (rgb_24bpp[23:16] * 3) + ((vga_xpos[1:0]==(frame_counter[2:1]+0)?0:((r_pwm_accumA & 10'h0FF)>>1)) + (rgb_24bpp[23:16] * 3) & 10'h0FF);
+      g_pwm_accumB <= (vga_xpos[1:0]==(frame_counter[2:1]+0)?0:((g_pwm_accumB & 10'h0FF)>>1)) + (rgb_24bpp[15: 8] * 3) + ((vga_xpos[1:0]==(frame_counter[2:1]+0)?0:((g_pwm_accumA & 10'h0FF)>>1)) + (rgb_24bpp[15: 8] * 3) & 10'h0FF);
+      b_pwm_accumB <= (vga_xpos[1:0]==(frame_counter[2:1]+0)?0:((b_pwm_accumB & 10'h0FF)>>1)) + (rgb_24bpp[ 7: 0] * 3) + ((vga_xpos[1:0]==(frame_counter[2:1]+0)?0:((b_pwm_accumA & 10'h0FF)>>1)) + (rgb_24bpp[ 7: 0] * 3) & 10'h0FF);
 
       // r_pwm_accum <= ((vga_xpos[1:0] != 0) ? r_pwm_accum[7:0] : 0) + rgb_24bpp[23:16] * src_mul;
       // g_pwm_accum <= ((vga_xpos[1:0] != 0) ? g_pwm_accum[7:0] : 0) + rgb_24bpp[15: 8] * src_mul;
