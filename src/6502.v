@@ -450,7 +450,7 @@ always @*
         JSR0,
         JSR1,
         PUSH1,
-        WRITE:   WE = ~res;
+        WRITE:   WE = ~res; // RESET forces read state, see: https://www.pagetable.com/?p=410
 
         INDX3,  // only if doing a STA, STX or STY
         INDY3,
