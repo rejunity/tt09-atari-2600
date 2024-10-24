@@ -450,7 +450,7 @@ always @*
         JSR0,
         JSR1,
         PUSH1,
-        WRITE:   WE = 1;
+        WRITE:   WE = ~res;
 
         INDX3,  // only if doing a STA, STX or STY
         INDY3,
