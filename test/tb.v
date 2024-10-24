@@ -10,7 +10,8 @@ module tb ();
   initial begin
     $dumpfile("tb.vcd");
     // $dumpvars(0, tb);
-    $dumpvars(1, tb, tb.user_project.tia.stall_cpu, tb.user_project.tia.valid_read_cmd, tb.user_project.cpu.PC);
+    // $dumpvars(1, tb, tb.user_project.tia.stall_cpu, tb.user_project.tia.valid_read_cmd, tb.user_project.cpu.PC);
+    $dumpvars(1, tb);
     #1;
   end
 
