@@ -217,9 +217,6 @@ module tia #(
       stall_cpu <= 0;
       vid_wr <= 0;
 
-      audio_left_counter <= 0;
-      audio_right_counter <= 0;
-
     // Process reads and writes from CPU
     end else if (cpu_enable_i) begin // TODO: if write_cmd instead, don't unnecesarry depend on cpu clock here
       cx_clr <= 0;
@@ -457,6 +454,12 @@ module tia #(
 
   // Produce the audio
   always @(posedge clk_i) begin // WAS always @(posedge cpu_clk_i)
+    if (rst_i) begin
+      audio_l <= 0;
+      audio_r <= 0;
+      audio_left_counter <= 0;
+      audio_right_counter <= 0;
+    end else
     // Audio counts at CPU frequency
     if (cpu_enable_i) begin
       audio_left_counter <= audio_left_counter + 1;
