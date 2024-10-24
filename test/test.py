@@ -29,8 +29,9 @@ async def test_project(dut):
 
     # Wait for one clock cycle to see the output values
     # await ClockCycles(dut.clk, 128)
+    await ClockCycles(dut.clk, 400)
     # await ClockCycles(dut.clk, 800*16)
-    await ClockCycles(dut.clk, 800*64*2)
+    # await ClockCycles(dut.clk, 800*64*2)
     # await ClockCycles(dut.clk, 800*525*3)
     # await ClockCycles(dut.clk, 800*525*5)
     # await ClockCycles(dut.clk, 800*525*10)
