@@ -217,8 +217,6 @@ module tia #(
       stall_cpu <= 0;
       vid_wr <= 0;
 
-      audio_l <= 0;
-      audio_r <= 0;
       audio_left_counter <= 0;
       audio_right_counter <= 0;
 
