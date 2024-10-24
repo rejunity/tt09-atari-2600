@@ -9,7 +9,8 @@ module tb ();
   // Dump the signals to a VCD file. You can view it with gtkwave.
   initial begin
     $dumpfile("tb.vcd");
-    $dumpvars(0, tb);
+    // $dumpvars(0, tb);
+    $dumpvars(1, tb, tb.user_project.tia.stall_cpu, tb.user_project.tia.valid_read_cmd);//, tb.user_project.cpu.PC);
     #1;
   end
 
