@@ -48,12 +48,12 @@ reg  IRHOLD_valid;      // Valid instruction in IRHOLD
 
 reg  [7:0] AXYS[3:0];   // A, X, Y and S register file
 
-reg  C = 0;             // carry flag (init at zero to avoid X's in ALU sim)
-reg  Z = 0;             // zero flag
-reg  I = 0;             // interrupt flag
-reg  D = 0;             // decimal flag
-reg  V = 0;             // overflow flag
-reg  N = 0;             // negative flag
+reg  C;                 // carry flag
+reg  Z;                 // zero flag
+reg  I;                 // interrupt flag
+reg  D;                 // decimal flag
+reg  V;                 // overflow flag
+reg  N;                 // negative flag
 wire AZ;                // ALU Zero flag
 wire AV;                // ALU overflow flag
 wire AN;                // ALU negative flag
@@ -70,7 +70,7 @@ wire CO;                // Carry Out
 wire [7:0] PCH = PC[15:8];
 wire [7:0] PCL = PC[7:0];
 
-reg NMI_edge = 0;       // captured NMI edge
+reg NMI_edge;           // captured NMI edge
 
 reg [1:0] regsel;                       // Select A, X, Y or S register
 wire [7:0] regfile = AXYS[regsel];      // Selected register output
@@ -804,8 +804,10 @@ always @(posedge clk)
 /*
  * Update D flag
  */
-always @(posedge clk ) 
-    if( state == RTI2 )
+always @(posedge clk )
+    if( reset )
+        D <= 0;
+    else if( state == RTI2 )
         D <= DIMUX[3];
     else if( state == DECODE ) begin
         if( sed ) D <= 1;
@@ -1206,13 +1208,16 @@ always @*
     endcase
 
 
-reg NMI_1 = 0;          // delayed NMI signal
+reg NMI_1;              // delayed NMI signal
 
 always @(posedge clk)
-    NMI_1 <= NMI;
+    if( reset )
+        NMI_1 <= 0;
+    else
+        NMI_1 <= NMI;
 
 always @(posedge clk )
-    if( NMI_edge && state == BRK3 )
+    if( reset || (NMI_edge && state == BRK3) )
         NMI_edge <= 0;
     else if( NMI & ~NMI_1 )
         NMI_edge <= 1;
