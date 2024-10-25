@@ -805,8 +805,8 @@ always @(posedge clk)
  * Update D flag
  */
 always @(posedge clk )
-    if( reset )
-        D <= 0;
+    if( reset || res ) // ReJ change: RESET forces D flag to 0, see page 10 of WDC 65C02 datasheet
+        D <= 0;        // https://www.westerndesigncenter.com/wdc/documentation/w65c02s.pdf
     else if( state == RTI2 )
         D <= DIMUX[3];
     else if( state == DECODE ) begin
