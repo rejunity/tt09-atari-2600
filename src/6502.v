@@ -968,8 +968,8 @@ always @(posedge clk or posedge reset)
 always @(posedge clk)
      if( reset )
          res <= 1;
-     else if( state == DECODE )
-         res <= 0;
+     else if( state == DECODE && RDY ) // ReJ change: need to keep RESET sequence signal active long enough
+         res <= 0;                     // so that load_reg, dst_reg... and php, clc, plp... signals are initialized
 
 always @(posedge clk)
      if( state == DECODE && RDY )
