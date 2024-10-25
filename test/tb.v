@@ -19,38 +19,38 @@ module tb ();
   end
 
 `ifdef GL_TEST
-  wire tia_stall_cpu      = user_project.\tia.stall_cpu ;
-  wire tia_valid_read_cmd = user_project.\tia.valid_read_cmd ;
-  wire tia_enabl          = user_project.\tia.enabl ;
-  wire tia_enam0          = user_project.\tia.enam0 ;
-  wire tia_enam1          = user_project.\tia.enam1 ;
+  wire TIA_stall_cpu      = user_project.\tia.stall_cpu ;
+  wire TIA_valid_read_cmd = user_project.\tia.valid_read_cmd ;
+  wire TIA_enabl          = user_project.\tia.enabl ;
+  wire TIA_enam0          = user_project.\tia.enam0 ;
+  wire TIA_enam1          = user_project.\tia.enam1 ;
 
-  wire [5:0] cpu_state = {  user_project.\cpu.state[5] ,
+  wire [5:0] CPU_state = {  user_project.\cpu.state[5] ,
                             user_project.\cpu.state[4] ,
                             user_project.\cpu.state[3] ,
                             user_project.\cpu.state[2] ,
                             user_project.\cpu.state[1] ,
                             user_project.\cpu.state[0] };
-  wire cpu_store = user_project.\cpu.store ;
-  wire cpu_N     = user_project.\cpu.N ;
-  wire cpu_V     = user_project.\cpu.V ;
-  wire cpu_D     = user_project.\cpu.D ;
-  wire cpu_I     = user_project.\cpu.I ;
-  wire cpu_Z     = user_project.\cpu.Z ;
-  wire cpu_C     = user_project.\cpu.C ;
+  wire CPU_store = user_project.\cpu.store ;
+  wire CPU_N     = user_project.\cpu.N ;
+  wire CPU_V     = user_project.\cpu.V ;
+  wire CPU_D     = user_project.\cpu.D ;
+  wire CPU_I     = user_project.\cpu.I ;
+  wire CPU_Z     = user_project.\cpu.Z ;
+  wire CPU_C     = user_project.\cpu.C ;
 
-  wire [1:0] cpu_src_reg = {user_project.\cpu.src_reg[1] ,
+  wire [1:0] CPU_src_reg = {user_project.\cpu.src_reg[1] ,
                             user_project.\cpu.src_reg[0] };
-  wire [1:0] cpu_dst_reg = {user_project.\cpu.dst_reg[1] ,
+  wire [1:0] CPU_dst_reg = {user_project.\cpu.dst_reg[1] ,
                             user_project.\cpu.dst_reg[0] };
 
-  wire cpu_plp      = user_project.\cpu.plp ;
-  wire cpu_load_reg = user_project.\cpu.load_reg ;
-  wire cpu_alu_HC   = user_project.\cpu.ALU.HC ;
-  wire cpu_alu_CO   = user_project.\cpu.ALU.CO ;
-  wire cpu_adj_bcd  = user_project.\cpu.adj_bcd ;
-  wire cpu_adc_sbc  = user_project.\cpu.adc_sbc ;
-  wire cpu_adc_bcd  = user_project.\cpu.adc_bcd ;
+  wire CPU_plp      = user_project.\cpu.plp ;
+  wire CPU_load_reg = user_project.\cpu.load_reg ;
+  wire CPU_alu_HC   = user_project.\cpu.ALU.HC ;
+  wire CPU_alu_CO   = user_project.\cpu.ALU.CO ;
+  wire CPU_adj_bcd  = user_project.\cpu.adj_bcd ;
+  wire CPU_adc_sbc  = user_project.\cpu.adc_sbc ;
+  wire CPU_adc_bcd  = user_project.\cpu.adc_bcd ;
 
   wire [15:0] PC = { user_project.\cpu.PC[15] ,
                      user_project.\cpu.PC[14] ,
@@ -113,38 +113,38 @@ module tb ();
   // SEL_S    = 2'd1,
   // SEL_X    = 2'd2, 
   // SEL_Y    = 2'd3;
-  wire [ 7:0] A = { user_project.\cpu.AXYS[0][7] ,
-                    user_project.\cpu.AXYS[0][6] ,
-                    user_project.\cpu.AXYS[0][5] ,
-                    user_project.\cpu.AXYS[0][4] ,
-                    user_project.\cpu.AXYS[0][3] ,
-                    user_project.\cpu.AXYS[0][2] ,
-                    user_project.\cpu.AXYS[0][1] ,
-                    user_project.\cpu.AXYS[0][0] };
-  wire [ 7:0] S = { user_project.\cpu.AXYS[1][7] ,
-                    user_project.\cpu.AXYS[1][6] ,
-                    user_project.\cpu.AXYS[1][5] ,
-                    user_project.\cpu.AXYS[1][4] ,
-                    user_project.\cpu.AXYS[1][3] ,
-                    user_project.\cpu.AXYS[1][2] ,
-                    user_project.\cpu.AXYS[1][1] ,
-                    user_project.\cpu.AXYS[1][0] };
-  wire [ 7:0] X = { user_project.\cpu.AXYS[2][7] ,
-                    user_project.\cpu.AXYS[2][6] ,
-                    user_project.\cpu.AXYS[2][5] ,
-                    user_project.\cpu.AXYS[2][4] ,
-                    user_project.\cpu.AXYS[2][3] ,
-                    user_project.\cpu.AXYS[2][2] ,
-                    user_project.\cpu.AXYS[2][1] ,
-                    user_project.\cpu.AXYS[2][0] };
-  wire [ 7:0] Y = { user_project.\cpu.AXYS[3][7] ,
-                    user_project.\cpu.AXYS[3][6] ,
-                    user_project.\cpu.AXYS[3][5] ,
-                    user_project.\cpu.AXYS[3][4] ,
-                    user_project.\cpu.AXYS[3][3] ,
-                    user_project.\cpu.AXYS[3][2] ,
-                    user_project.\cpu.AXYS[3][1] ,
-                    user_project.\cpu.AXYS[3][0] };
+  wire [ 7:0] REG_A = { user_project.\cpu.AXYS[0][7] ,
+                        user_project.\cpu.AXYS[0][6] ,
+                        user_project.\cpu.AXYS[0][5] ,
+                        user_project.\cpu.AXYS[0][4] ,
+                        user_project.\cpu.AXYS[0][3] ,
+                        user_project.\cpu.AXYS[0][2] ,
+                        user_project.\cpu.AXYS[0][1] ,
+                        user_project.\cpu.AXYS[0][0] };
+  wire [ 7:0] REG_S = { user_project.\cpu.AXYS[1][7] ,
+                        user_project.\cpu.AXYS[1][6] ,
+                        user_project.\cpu.AXYS[1][5] ,
+                        user_project.\cpu.AXYS[1][4] ,
+                        user_project.\cpu.AXYS[1][3] ,
+                        user_project.\cpu.AXYS[1][2] ,
+                        user_project.\cpu.AXYS[1][1] ,
+                        user_project.\cpu.AXYS[1][0] };
+  wire [ 7:0] REG_X = { user_project.\cpu.AXYS[2][7] ,
+                        user_project.\cpu.AXYS[2][6] ,
+                        user_project.\cpu.AXYS[2][5] ,
+                        user_project.\cpu.AXYS[2][4] ,
+                        user_project.\cpu.AXYS[2][3] ,
+                        user_project.\cpu.AXYS[2][2] ,
+                        user_project.\cpu.AXYS[2][1] ,
+                        user_project.\cpu.AXYS[2][0] };
+  wire [ 7:0] REG_Y = { user_project.\cpu.AXYS[3][7] ,
+                        user_project.\cpu.AXYS[3][6] ,
+                        user_project.\cpu.AXYS[3][5] ,
+                        user_project.\cpu.AXYS[3][4] ,
+                        user_project.\cpu.AXYS[3][3] ,
+                        user_project.\cpu.AXYS[3][2] ,
+                        user_project.\cpu.AXYS[3][1] ,
+                        user_project.\cpu.AXYS[3][0] };
 
 `endif
 
