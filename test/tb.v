@@ -4,16 +4,150 @@
 /* This testbench just instantiates the module and makes some convenient wires
    that can be driven / tested by the cocotb test.py.
 */
+
 module tb ();
 
   // Dump the signals to a VCD file. You can view it with gtkwave.
   initial begin
     $dumpfile("tb.vcd");
-    // $dumpvars(0, tb);
-    // $dumpvars(1, tb, tb.user_project.tia.stall_cpu, tb.user_project.tia.valid_read_cmd, tb.user_project.cpu.PC);
+`ifdef GL_TEST
     $dumpvars(1, tb);
+`else
+    $dumpvars(0, tb);
+`endif
     #1;
   end
+
+`ifdef GL_TEST
+  wire tia_stall_cpu      = user_project.\tia.stall_cpu ;
+  wire tia_valid_read_cmd = user_project.\tia.valid_read_cmd ;
+  wire tia_enabl          = user_project.\tia.enabl ;
+  wire tia_enam0          = user_project.\tia.enam0 ;
+  wire tia_enam1          = user_project.\tia.enam1 ;
+
+  wire [5:0] cpu_state = {  user_project.\cpu.state[5] ,
+                            user_project.\cpu.state[4] ,
+                            user_project.\cpu.state[3] ,
+                            user_project.\cpu.state[2] ,
+                            user_project.\cpu.state[1] ,
+                            user_project.\cpu.state[0] };
+  wire cpu_store = user_project.\cpu.store ;
+  wire cpu_N     = user_project.\cpu.N ;
+  wire cpu_V     = user_project.\cpu.V ;
+  wire cpu_D     = user_project.\cpu.D ;
+  wire cpu_I     = user_project.\cpu.I ;
+  wire cpu_Z     = user_project.\cpu.Z ;
+  wire cpu_C     = user_project.\cpu.C ;
+
+  wire [1:0] cpu_src_reg = {user_project.\cpu.src_reg[1] ,
+                            user_project.\cpu.src_reg[0] };
+  wire [1:0] cpu_dst_reg = {user_project.\cpu.dst_reg[1] ,
+                            user_project.\cpu.dst_reg[0] };
+
+  wire cpu_plp      = user_project.\cpu.plp ;
+  wire cpu_load_reg = user_project.\cpu.load_reg ;
+  wire cpu_alu_HC   = user_project.\cpu.ALU.HC ;
+  wire cpu_alu_CO   = user_project.\cpu.ALU.CO ;
+  wire cpu_adj_bcd  = user_project.\cpu.adj_bcd ;
+  wire cpu_adc_sbc  = user_project.\cpu.adc_sbc ;
+  wire cpu_adc_bcd  = user_project.\cpu.adc_bcd ;
+
+  wire [15:0] PC = { user_project.\cpu.PC[15] ,
+                     user_project.\cpu.PC[14] ,
+                     user_project.\cpu.PC[13] ,
+                     user_project.\cpu.PC[12] ,
+                     user_project.\cpu.PC[11] ,
+                     user_project.\cpu.PC[10] ,
+                     user_project.\cpu.PC[9] ,
+                     user_project.\cpu.PC[8] ,
+                     user_project.\cpu.PC[7] ,
+                     user_project.\cpu.PC[6] ,
+                     user_project.\cpu.PC[5] ,
+                     user_project.\cpu.PC[4] ,
+                     user_project.\cpu.PC[3] ,
+                     user_project.\cpu.PC[2] ,
+                     user_project.\cpu.PC[1] ,
+                     user_project.\cpu.PC[0] };
+
+  wire [15:0] ABr ={ user_project.\address_bus_r[12] * 4'b1111,
+                     user_project.\address_bus_r[11] ,
+                     user_project.\address_bus_r[10] ,
+                     user_project.\address_bus_r[9] ,
+                     user_project.\address_bus_r[8] ,
+                     user_project.\address_bus_r[7] ,
+                     user_project.\address_bus_r[6] ,
+                     user_project.\address_bus_r[5] ,
+                     user_project.\address_bus_r[4] ,
+                     user_project.\address_bus_r[3] ,
+                     user_project.\address_bus_r[2] ,
+                     user_project.\address_bus_r[1] ,
+                     user_project.\address_bus_r[0] };
+
+  wire [ 7:0] ADD ={ user_project.\cpu.ADD[7] ,
+                     user_project.\cpu.ADD[6] ,
+                     user_project.\cpu.ADD[5] ,
+                     user_project.\cpu.ADD[4] ,
+                     user_project.\cpu.ADD[3] ,
+                     user_project.\cpu.ADD[2] ,
+                     user_project.\cpu.ADD[1] ,
+                     user_project.\cpu.ADD[0] };
+
+  wire [ 7:0] DO = { user_project.\cpu.DO[7] ,
+                     user_project.\cpu.DO[6] ,
+                     user_project.\cpu.DO[5] ,
+                     user_project.\cpu.DO[4] ,
+                     user_project.\cpu.DO[3] ,
+                     user_project.\cpu.DO[2] ,
+                     user_project.\cpu.DO[1] ,
+                     user_project.\cpu.DO[0] };
+  wire [ 7:0] DI = { user_project.\cpu.DI[7] ,
+                     user_project.\cpu.DI[6] ,
+                     user_project.\cpu.DI[5] ,
+                     user_project.\cpu.DI[4] ,
+                     user_project.\cpu.DI[3] ,
+                     user_project.\cpu.DI[2] ,
+                     user_project.\cpu.DI[1] ,
+                     user_project.\cpu.DI[0] };
+
+  // SEL_A    = 2'd0,
+  // SEL_S    = 2'd1,
+  // SEL_X    = 2'd2, 
+  // SEL_Y    = 2'd3;
+  wire [ 7:0] A = { user_project.\cpu.AXYS[0][7] ,
+                    user_project.\cpu.AXYS[0][6] ,
+                    user_project.\cpu.AXYS[0][5] ,
+                    user_project.\cpu.AXYS[0][4] ,
+                    user_project.\cpu.AXYS[0][3] ,
+                    user_project.\cpu.AXYS[0][2] ,
+                    user_project.\cpu.AXYS[0][1] ,
+                    user_project.\cpu.AXYS[0][0] };
+  wire [ 7:0] S = { user_project.\cpu.AXYS[1][7] ,
+                    user_project.\cpu.AXYS[1][6] ,
+                    user_project.\cpu.AXYS[1][5] ,
+                    user_project.\cpu.AXYS[1][4] ,
+                    user_project.\cpu.AXYS[1][3] ,
+                    user_project.\cpu.AXYS[1][2] ,
+                    user_project.\cpu.AXYS[1][1] ,
+                    user_project.\cpu.AXYS[1][0] };
+  wire [ 7:0] X = { user_project.\cpu.AXYS[2][7] ,
+                    user_project.\cpu.AXYS[2][6] ,
+                    user_project.\cpu.AXYS[2][5] ,
+                    user_project.\cpu.AXYS[2][4] ,
+                    user_project.\cpu.AXYS[2][3] ,
+                    user_project.\cpu.AXYS[2][2] ,
+                    user_project.\cpu.AXYS[2][1] ,
+                    user_project.\cpu.AXYS[2][0] };
+  wire [ 7:0] Y = { user_project.\cpu.AXYS[3][7] ,
+                    user_project.\cpu.AXYS[3][6] ,
+                    user_project.\cpu.AXYS[3][5] ,
+                    user_project.\cpu.AXYS[3][4] ,
+                    user_project.\cpu.AXYS[3][3] ,
+                    user_project.\cpu.AXYS[3][2] ,
+                    user_project.\cpu.AXYS[3][1] ,
+                    user_project.\cpu.AXYS[3][0] };
+
+`endif
+
 
   // Wire up the inputs and outputs:
   reg clk;
