@@ -634,8 +634,8 @@ module tt_um_rejunity_atari2600 (
     if (pia_cs) data_in <= pia_data_out;
   end
 
-  // TODO: support 128KB cartridges (17 bit address instead of 15 bit)
-  wire [15:0] spi_address = address_bus[11:0] + 16'd4096; // 32KB cartridge only
+  // @TODO: is it possible to use 20 bit address instead of 24?
+  wire [23:0] spi_address = address_bus[11:0] + 24'h10_00_00; // iceprog -o1024k
   wire        spi_start_read = cpu_enable && !stall_cpu && rom_cs;
 
   wire  [3:0] spi_data_in;
@@ -646,7 +646,7 @@ module tt_um_rejunity_atari2600 (
   reg         spi_data_ready;
   wire        spi_busy;
   `ifdef QSPI_ROM
-  qspi_flash_controller #(.DATA_WIDTH_BYTES(1), .ADDR_BITS(16)) flash_rom (
+  qspi_flash_controller #(.DATA_WIDTH_BYTES(1), .ADDR_BITS(24)) flash_rom (
     .clk(clk),
     .rstn(rst_n),
 
