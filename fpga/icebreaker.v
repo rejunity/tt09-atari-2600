@@ -15,6 +15,10 @@ module vga_pll(
 );
 
     // iCE40 PLLs are documented in Lattice TN1251 and ICE Technology Library
+
+    // 25.175 MHz
+    // USE Command line tool:
+    //    icepll -i 12 -o 25.175
     // Given input frequency:        12.000 MHz
     // Requested output frequency:   25.175 MHz
     // Achieved output frequency:    25.125 MHz
@@ -23,7 +27,6 @@ module vga_pll(
         .FEEDBACK_PATH("SIMPLE"),
         .DIVR(4'b0000),         // DIVR =  0
         .DIVF(7'b1000010),      // DIVF = 66
-        // .DIVF(7'b0111000),      // DIVF =  ??
         .DIVQ(3'b101),          // DIVQ =  5
         .FILTER_RANGE(3'b001)   // FILTER_RANGE = 1
     ) pll (
@@ -33,6 +36,28 @@ module vga_pll(
         .PACKAGEPIN(clk_in),
         .PLLOUTCORE(clk_out)
     );
+
+    // 50.35 MHz (2x 25.175 MHz)
+    // USE Command line tool:
+    //    icepll -i 12 -o 50.35
+    // Given input frequency:        12.000 MHz
+    // Requested output frequency:   50.350 MHz
+    // Achieved output frequency:    50.250 MHz
+
+    // SB_PLL40_PAD #(
+    //     .FEEDBACK_PATH("SIMPLE"),
+    //     .DIVR(4'b0000),         // DIVR =  0
+    //     .DIVF(7'b1000010),      // DIVF = 66
+    //     .DIVQ(3'b100),          // DIVQ =  4
+    //     .FILTER_RANGE(3'b001)   // FILTER_RANGE = 1
+    // ) pll (
+    //     .LOCK(locked),
+    //     .RESETB(1'b1),
+    //     .BYPASS(1'b0),
+    //     .PACKAGEPIN(clk_in),
+    //     .PLLOUTCORE(clk_out)
+    // );
+
 endmodule
 
 module top (
