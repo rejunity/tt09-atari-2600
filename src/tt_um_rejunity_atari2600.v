@@ -4,7 +4,7 @@
  */
 
 `default_nettype none
-`define QSPI_ROM
+// `define QSPI_ROM
 
 module tt_um_rejunity_atari2600 (
     input  wire [7:0] ui_in,    // Dedicated inputs
@@ -620,8 +620,13 @@ module tt_um_rejunity_atari2600 (
   reg [7:0] ram_data;
   always @(posedge clk) begin
     // ROM
+  `ifdef QSPI_ROM
+    if (spi_data_ready) rom_data <= spi_data_read;
+  `else
     rom_data <= rom[address_bus[11:0]]; // makes yosys iCE40 BRAM inference happy
                                         // and allows it to be used as ROM storage
+  `endif
+
     ram_data <= ram[address_bus[ 6:0]]; // makes yosys iCE40 BRAM inference happy
 
     // CPU writes
@@ -643,6 +648,7 @@ module tt_um_rejunity_atari2600 (
   wire  [3:0] spi_data_oe;
   wire        spi_select;
   reg         spi_clk_out;
+  wire  [7:0] spi_data_read;
   reg         spi_data_ready;
   wire        spi_busy;
   `ifdef QSPI_ROM
@@ -663,14 +669,10 @@ module tt_um_rejunity_atari2600 (
     .stall_read(1'b0),
     .stop_read(1'b0), // TODO: does stopping read after 1 byte makes subsequent command faster?
 
-    .data_out(rom_data),
+    .data_out(spi_data_read),
     .data_ready(spi_data_ready),
     .busy(spi_busy)
   );
-  `else
-  always @(posedge clk) // ROM on board
-    rom_data <= rom[address_bus[11:0]]; // makes yosys iCE40 BRAM inference happy
-                                        // and allows it to be used as ROM storage
   `endif
 
 endmodule
