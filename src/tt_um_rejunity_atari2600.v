@@ -166,7 +166,7 @@ module tt_um_rejunity_atari2600 (
         clk_counter <= 0;
         // turbo <= stall_cpu;
         // turbo <= stall_cpu && tia_vblank; // tia_vblank makes sprites jump in RiverRaid
-        // turbo <= stall_cpu && tia_vsync;
+        // turbo <= stall_cpu && tia_vsync;  // this is necessary for lawrie PONG, @TODO: investigate
         // turbo <= 0;
       end else
         clk_counter <= clk_counter_next;
