@@ -81,8 +81,8 @@ module vga_hvsync_generator #(
   input reset;
   output reg hsync, vsync;
   output display_on;
-  output reg [$clog2(H_MAX)-1:0] hpos;
-  output reg [$clog2(V_MAX)-1:0] vpos;
+  output reg [$clog2((H_DISPLAY+H_BACK+H_FRONT+H_SYNC))-1:0] hpos;
+  output reg [$clog2((V_DISPLAY+V_TOP+V_BOTTOM+V_SYNC))-1:0] vpos;
 
   // derived constants
   parameter H_SYNC_START    = H_DISPLAY + H_FRONT;
