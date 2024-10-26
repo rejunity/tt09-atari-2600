@@ -4,6 +4,7 @@
  */
 
 `default_nettype none
+`define VGA_REGISTERED_OUTPUTS
 `define VGA_50MHz
 // `define QSPI_ROM
 
@@ -39,7 +40,14 @@ module tt_um_rejunity_atari2600 (
   wire audio_pwm = 0;// @TEMP: audio_pwm_accumulator[5];
 
   // TinyVGA PMOD
+`ifdef VGA_REGISTERED_OUTPUTS
+  reg [7:0] UO_OUT;
+  always @(posedge clk)
+    UO_OUT <= {hsync, B[0], G[0], R[0], vsync, B[1], G[1], R[1]};
+  assign uo_out = UO_OUT;
+`else
   assign uo_out = {hsync, B[0], G[0], R[0], vsync, B[1], G[1], R[1]};
+`endif
 
   // Audio PMOD + ROM SPI
   // 1 bidirectional pin is unused (tia_vsync for diagostics in Verilator)
