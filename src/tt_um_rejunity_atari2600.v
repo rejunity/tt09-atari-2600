@@ -43,8 +43,13 @@ module tt_um_rejunity_atari2600 (
   // Audio PMOD + ROM SPI
   // 1 bidirectional pin is unused (tia_vsync for diagostics in Verilator)
   // TODO: output video_active for DVI instead
+`ifdef QSPI_ROM
   assign uio_out = {audio_pwm, tia_vsync, spi_select, spi_clk_out, spi_data_out};
   assign uio_oe  = {     1'b1,      1'b1,       1'b1,        1'b1,  spi_data_oe};
+`else
+  assign uio_out = {audio_pwm, tia_vsync,       1'b0,        1'b0,       3'b000};
+  assign uio_oe  = {     1'b1,      1'b1,       1'b1,        1'b1,       3'b111};
+`endif
   assign spi_data_in = uio_in[3:0];
 
   // Suppress unused signals warning
