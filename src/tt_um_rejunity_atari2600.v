@@ -651,8 +651,8 @@ module tt_um_rejunity_atari2600 (
   wire  [7:0] spi_data_read;
   reg         spi_data_ready;
   wire        spi_busy;
-  `ifdef QSPI_ROM
   qspi_flash_controller #(.DATA_WIDTH_BYTES(1), .ADDR_BITS(24)) flash_rom (
+  `ifdef QSPI_ROM
     .clk(clk),
     .rstn(rst_n),
 
@@ -672,7 +672,7 @@ module tt_um_rejunity_atari2600 (
     .data_out(spi_data_read),
     .data_ready(spi_data_ready),
     .busy(spi_busy)
-  );
   `endif
+  );
 
 endmodule
