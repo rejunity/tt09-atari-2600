@@ -18,7 +18,7 @@ a2600: V${TOP}.mk
 
 V${TOP}.mk: ${MAIN_CPP}
 	verilator ${VFLAGS} ${WFLAGS} -I${SRC_DIR} \
-		-cc  ${TOP}.v ${PROJECT_SOURCES}  --exe $< -o ${EXEC_NAME} \
+		-top $(TOP) -cc  ${TOP}.v ${PROJECT_SOURCES}  --exe $< -o ${EXEC_NAME} \
 		-CFLAGS "${SDL_CFLAGS}" -LDFLAGS "${SDL_LDFLAGS}"
 
 all:
