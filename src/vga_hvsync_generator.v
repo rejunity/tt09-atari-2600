@@ -9,26 +9,81 @@ To use:
 - Add a 3-bit (or more) "rgb" output to the top level
 */
 
-module vga_hvsync_generator(clk, reset, hsync, vsync, display_on, hpos, vpos);
+module vga_640x480_25MHz_hvsync_generator(
+  input clk,
+  input reset,
+  output reg hsync,
+  output reg vsync,
+  output display_on,
+  output reg [9:0] hpos,
+  output reg [9:0] vpos
+);
+  vga_hvsync_generator vga (
+    .clk, .reset, .hsync, .vsync, .display_on, .hpos, .vpos
+  );
+endmodule
+
+module vga_640x480_50MHz_hvsync_generator(
+  input clk,
+  input reset,
+  output reg hsync,
+  output reg vsync,
+  output display_on,
+  output reg [9:0] hpos,
+  output reg [9:0] vpos
+);
+  reg sub_pixel;
+  vga_hvsync_generator #(
+    .H_DISPLAY(640 * 2),  // horizontal display width
+    .H_BACK   ( 48 * 2),  // horizontal left border (back porch)
+    .H_FRONT  ( 16 * 2),  // horizontal right border (front porch)
+    .H_SYNC   ( 96 * 2)   // horizontal sync width
+  ) vga (
+    .clk, .reset, .hsync, .vsync, .display_on, .vpos,
+    .hpos      ({hpos, sub_pixel})
+  );
+endmodule
+
+module vga_1280x480_50MHz_hvsync_generator(
+  input clk,
+  input reset,
+  output reg hsync,
+  output reg vsync,
+  output display_on,
+  output reg [10:0] hpos,
+  output reg [ 9:0] vpos
+);
+  vga_hvsync_generator #(
+    .H_DISPLAY(640 * 2),  // horizontal display width
+    .H_BACK   ( 48 * 2),  // horizontal left border (back porch)
+    .H_FRONT  ( 16 * 2),  // horizontal right border (front porch)
+    .H_SYNC   ( 96 * 2)   // horizontal sync width
+  ) vga (
+    .clk, .reset, .hsync, .vsync, .display_on, .hpos, .vpos
+  );
+endmodule
+
+module vga_hvsync_generator #(
+  // declarations for TV-simulator sync parameters
+  // horizontal constants
+  parameter H_DISPLAY       = 640, // horizontal display width
+  parameter H_BACK          =  48, // horizontal left border (back porch)
+  parameter H_FRONT         =  16, // horizontal right border (front porch)
+  parameter H_SYNC          =  96, // horizontal sync width
+  // vertical constants
+  parameter V_DISPLAY       = 480, // vertical display height
+  parameter V_TOP           =  33, // vertical top border
+  parameter V_BOTTOM        =  10, // vertical bottom border
+  parameter V_SYNC          =   2  // vertical sync # lines
+) ( clk, reset, hsync, vsync, display_on, hpos, vpos);
 
   input clk;
   input reset;
   output reg hsync, vsync;
   output display_on;
-  output reg [9:0] hpos;
-  output reg [9:0] vpos;
+  output reg [$clog2(H_MAX)-1:0] hpos;
+  output reg [$clog2(V_MAX)-1:0] vpos;
 
-  // declarations for TV-simulator sync parameters
-  // horizontal constants
-  parameter H_DISPLAY       = 640; // horizontal display width
-  parameter H_BACK          =  48; // horizontal left border (back porch)
-  parameter H_FRONT         =  16; // horizontal right border (front porch)
-  parameter H_SYNC          =  96; // horizontal sync width
-  // vertical constants
-  parameter V_DISPLAY       = 480; // vertical display height
-  parameter V_TOP           =  33; // vertical top border
-  parameter V_BOTTOM        =  10; // vertical bottom border
-  parameter V_SYNC          =   2; // vertical sync # lines
   // derived constants
   parameter H_SYNC_START    = H_DISPLAY + H_FRONT;
   parameter H_SYNC_END      = H_DISPLAY + H_FRONT + H_SYNC - 1;
@@ -37,8 +92,8 @@ module vga_hvsync_generator(clk, reset, hsync, vsync, display_on, hpos, vpos);
   parameter V_SYNC_END      = 0 + V_SYNC - 1;
   parameter V_MAX           = V_DISPLAY + V_TOP + V_BOTTOM + V_SYNC - 1;
 
-  wire hmaxxed = (hpos == H_MAX) || reset;	// set when hpos is maximum
-  wire vmaxxed = (vpos == V_MAX) || reset;	// set when vpos is maximum
+  wire hmaxxed = (hpos == H_MAX) || reset;  // set when hpos is maximum
+  wire vmaxxed = (vpos == V_MAX) || reset;  // set when vpos is maximum
   
   // horizontal position counter
   always @(posedge clk)

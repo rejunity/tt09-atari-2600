@@ -5,7 +5,7 @@ project:
   discord:      "rzioma"
   description:  "Replica of Atari 2600"
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
-  clock_hz:     2517500   # Clock frequency in Hz (or 0 if not applicable)
+  clock_hz:     5035000   # Clock frequency in Hz
 
   # How many tiles your design occupies? A single tile is about 167x108 uM.
   tiles: "8x2"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
