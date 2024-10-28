@@ -35,6 +35,7 @@ endif
 
 # Include the testbench sources:
 VERILOG_SOURCES += $(PWD)/tb.v
+VERILOG_SOURCES += $(PWD)/qspi_rom_emu.v
 TOPLEVEL = tb
 
 # MODULE is the basename of the Python test file

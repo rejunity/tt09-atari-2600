@@ -12,12 +12,15 @@ PROJECT_SOURCES += tt_um_rejunity_atari2600.v vga_hvsync_generator.v qspi_flash.
 PROJECT_SOURCES += 6502.v ALU.v TIA.v PIA.v
 PROJECT_SOURCES += palette_24bpp.v
 
+SRC_TEST_UTILS_DIR = $(PWD)/../test
+PROJECT_SOURCES += qspi_rom_emu.v
+
 a2600: V${TOP}.mk
 	make -C ./obj_dir -f V${TOP}.mk
 	cp ./obj_dir/${EXEC_NAME} .
 
 V${TOP}.mk: ${MAIN_CPP}
-	verilator ${VFLAGS} ${WFLAGS} -I${SRC_DIR} \
+	verilator ${VFLAGS} ${WFLAGS} -I${SRC_DIR} -I${SRC_TEST_UTILS_DIR} \
 		-top $(TOP) -cc  ${TOP}.v ${PROJECT_SOURCES}  --exe $< -o ${EXEC_NAME} \
 		-CFLAGS "${SDL_CFLAGS}" -LDFLAGS "${SDL_LDFLAGS}"
 
