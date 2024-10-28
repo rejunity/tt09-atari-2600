@@ -143,16 +143,6 @@ module tt_um_rejunity_atari2600 (
       scanline[tia_xpos] <= tia_color_out;
   end
 
-`ifdef VERILATOR
-  wire [31:0] vga_pos = (vga_ypos * 800 + vga_xpos);
-  wire [31:0] tia_pos = (tia_ypos * 228 + tia_xpos) * 4 * 2;
-  wire tia_ahead = tia_pos > vga_pos;
-  wire vga_ahead = tia_pos < vga_pos;
-
-  always @(posedge vga_ypos)
-    if (vga_ahead && wait_for_vga_sync)
-      $display("VGA ahead", vga_ypos, vga_xpos, " vs ", tia_ypos, tia_xpos);
-`endif
 `ifdef SIM
   wire [31:0] vga_pos = (vga_ypos * 800 + vga_xpos);
   wire [31:0] tia_pos = (tia_ypos * 228 + tia_xpos) * 4 * 2;
@@ -161,7 +151,7 @@ module tt_um_rejunity_atari2600 (
 
   always @(posedge vga_ypos)
     if (vga_ahead && wait_for_vga_sync)
-      $display("VGA ahead", vga_ypos, vga_xpos, " vs ", tia_ypos, tia_xpos);
+      $display("VGA ahead", vga_ypos, "x", vga_xpos, " vs ", tia_ypos, "x", tia_xpos);
 `endif
 
   reg tia_vsync_last;

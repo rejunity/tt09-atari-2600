@@ -2,6 +2,7 @@ TOP = top
 MAIN_CPP = atari2600.cpp
 EXEC_NAME = a2600
 
+DFLAGS = -DSIM
 VFLAGS = -O3 --x-assign fast --x-initial fast --noassert
 WFLAGS = -Wno-CASEINCOMPLETE -Wno-CASEX -Wno-CASEOVERLAP -Wno-WIDTHTRUNC -Wno-WIDTHEXPAND -Wno-PINMISSING
 SDL_CFLAGS = `sdl2-config --cflags`
@@ -22,7 +23,7 @@ a2600: V${TOP}.mk
 V${TOP}.mk: ${MAIN_CPP}
 	verilator ${VFLAGS} ${WFLAGS} -I${SRC_DIR} -I${SRC_TEST_UTILS_DIR} \
 		-top $(TOP) -cc  ${TOP}.v ${PROJECT_SOURCES}  --exe $< -o ${EXEC_NAME} \
-		-CFLAGS "${SDL_CFLAGS}" -LDFLAGS "${SDL_LDFLAGS}"
+		${DFLAGS} -CFLAGS "${SDL_CFLAGS}" -LDFLAGS "${SDL_LDFLAGS}"
 
 all:
 
