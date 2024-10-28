@@ -5,6 +5,92 @@
    that can be driven / tested by the cocotb test.py.
 */
 
+module qspi_rom #(parameter ADDR_BITS = 24) (
+  input wire clk,
+  input wire select,
+  input wire [3:0] cmd_addr_in,
+  output reg [3:0] data_out
+);
+  parameter DATA_WIDTH_BYTES = 1;
+  localparam CMD    = 8;
+  localparam ADDR   = CMD   + ADDR_BITS/4;
+  localparam LOAD   = ADDR  + 3;
+  localparam LOAD2  = LOAD  + 1;
+  localparam INCA   = LOAD2 + 1;
+  localparam DATA   = INCA  + 1;
+
+  reg [7:0] counter;
+  reg [ADDR_BITS-1:0] addr;
+  always @(posedge clk) begin
+    if (select) begin
+      counter <= 0;
+    end else begin
+      counter <= counter + 1;
+      if      (counter <  CMD)  addr            <= 0;
+      else if (counter < ADDR)  addr            <= {addr[ADDR_BITS-1-4:0], cmd_addr_in};
+      else if (counter < LOAD)  data[15:8]      <= rom[addr[11:0]];
+      else if (counter < LOAD2) data[7:0]       <= rom[addr[11:0] + 1];
+      else if (counter < INCA)  addr            <= addr + 2;
+      else if (counter < DATA)  data_out        <= data[15-:4];     //{data_out, data} <= {data,  4'b0000};
+      else begin           
+                                data_out        <= data[11-:4];
+                                data[15:8]      <= data[7:0];
+                                data[7:0]       <= rom[addr[11:0]];
+                                addr            <= addr + 1;
+                                counter         <= counter - 1;
+      end
+    end
+  end
+
+  reg [15:0] data;
+  reg [7:0] rom [4095:0];
+  initial begin
+    $readmemh("../roms/rom.mem", rom, 0, 4095);
+    // DEBUG: override reset vector
+    // rom[12'hFFD] <= 8'hF0; rom[12'hFFC] <= 8'h00;
+  end  
+endmodule
+
+// module qspi_rom #(parameter ADDR_BITS = 24) (
+//   input wire clk,
+//   input wire select,
+//   input wire [3:0] cmd_addr_in,
+//   output reg [3:0] data_out
+// );
+//   parameter DATA_WIDTH_BYTES = 2;
+//   localparam CMD    = 8;
+//   localparam ADDR   = CMD   + ADDR_BITS/4;
+//   localparam LOAD0  = ADDR  + 4 + 1;
+//   localparam LOAD1  = LOAD0 + 1;
+
+//   reg [7:0] counter;
+//   reg [ADDR_BITS-1:0] addr;
+//   always @(posedge clk) begin
+//     if (select) begin
+//       counter <= 0;
+//     end else begin
+//       counter <= counter + 1;
+//       if      (counter <   CMD) addr <= 0;
+//       else if (counter <  ADDR) addr <= // receiving data
+//                                {addr[ADDR_BITS-1-4:0], cmd_addr_in};
+//       // else if (counter < LOAD) rom_data <= rom[addr[11:0]];
+//       else if (counter < LOAD0) rom_data[15:8] <= rom[addr[11:0]];
+//       else if (counter < LOAD1) rom_data[ 7:0] <= rom[addr[11:0] + 1'b1];
+//       else /* sending data */  {data_out, rom_data} <=
+//                                {rom_data,  4'b0000};
+//     end
+//   end
+
+//   // reg [7:0] rom_data;
+//   reg [15:0] rom_data;
+//   reg [7:0] rom [4095:0];
+//   initial begin
+//     $readmemh("../roms/rom.mem", rom, 0, 4095);
+//     // DEBUG: override reset vector
+//     // rom[12'hFFD] <= 8'hF0; rom[12'hFFC] <= 8'h00;
+//   end  
+// endmodule
+
 module tb ();
 
   // Dump the signals to a VCD file. You can view it with gtkwave.
@@ -148,6 +234,11 @@ module tb ();
 
 `endif
 
+  qspi_rom qspi_rom(
+    .clk        (uio_out[4]),
+    .select     (uio_out[5]),
+    .cmd_addr_in(uio_out[3:0]),
+    .data_out   ( uio_in[3:0]));
 
   // Wire up the inputs and outputs:
   reg clk;

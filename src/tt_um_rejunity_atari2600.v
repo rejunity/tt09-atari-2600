@@ -646,15 +646,21 @@ module tt_um_rejunity_atari2600 (
   wire pia_cs = (address_bus[12] == 0 && address_bus[7] == 1 && address_bus[9] == 1);
   wire ram_cs = (address_bus[12] == 0 && address_bus[7] == 1 && address_bus[9] == 0);
 
+  reg [7:0] expected_rom_data;
   reg [7:0] rom_data;
   reg [7:0] ram_data;
   always @(posedge clk) begin
     // ROM
   `ifdef QSPI_ROM
-    if (spi_data_ready) rom_data <= spi_data_read;
+    // if (spi_data_ready) rom_data <= spi_data_read;
+    if (valid_rom_address_on_bus)
+      expected_rom_data <= rom[address_bus[11:0]];
+    if (valid_rom_address_on_bus && !wait_for_memory && rom_data != expected_rom_data)
+      $display("addr: %0H spi: %0H != %0H @ %0H", address_bus[11:0], rom_data, expected_rom_data, cpu.PC[15:0]);
   `else
     rom_data <= rom[address_bus[11:0]]; // makes yosys iCE40 BRAM inference happy
                                         // and allows it to be used as ROM storage
+
   `endif
 
     ram_data <= ram[address_bus[ 6:0]]; // makes yosys iCE40 BRAM inference happy
@@ -669,19 +675,29 @@ module tt_um_rejunity_atari2600 (
     if (pia_cs) data_in <= pia_data_out;
   end
 
-  // @TODO: is it possible to use 20 bit address instead of 24?
+// -------------------------------------------------------------------------
+`ifdef QSPI_ROM
+  reg spi_restart;
+  wire valid_rom_address_on_bus = cpu_enable && !stall_cpu && rom_cs;
   wire [23:0] spi_address = address_bus[11:0] + 24'h10_00_00; // iceprog -o1024k
-  wire        spi_start_read = cpu_enable && !stall_cpu && rom_cs;
+  // wire [15:0] spi_address = address_bus[11:0] + 16'hF0_00; // iceprog -o60k
+  wire        need_new_rom_data = valid_rom_address_on_bus      && (rom_data_pending == 0) && !rom_addr_in_cache;
+  wire        spi_start_read = !spi_busy && (need_new_rom_data || spi_restart);
+  wire        spi_stop_read =   spi_busy && need_new_rom_data;
+  // wire        spi_stop_read = spi_data_ready;
+  // wire        spi_stall_read = spi_data_ready;
+  reg         spi_stall_read;
 
   wire  [3:0] spi_data_in;
   reg   [3:0] spi_data_out;
   wire  [3:0] spi_data_oe;
   wire        spi_select;
   reg         spi_clk_out;
+  // wire  [7:0] spi_data_read;
   wire  [7:0] spi_data_read;
   reg         spi_data_ready;
+  reg         spi_data_ready_last;
   wire        spi_busy;
-  `ifdef QSPI_ROM
   qspi_flash_controller #(.DATA_WIDTH_BYTES(1), .ADDR_BITS(24)) flash_rom (
     .clk(clk),
     .rstn(rst_n),
@@ -696,14 +712,63 @@ module tt_um_rejunity_atari2600 (
     // Internal interface for reading/writing data
     .addr_in(spi_address),
     .start_read(spi_start_read),
-    .stall_read(1'b0),
-    .stop_read(1'b0), // TODO: does stopping read after 1 byte makes subsequent command faster?
+    .stall_read(spi_stall_read),
+    .stop_read(spi_stop_read),
 
-    .data_out(spi_data_read),
+    // .data_out(spi_data_read),
+    .data_out(rom_data),
     .data_ready(spi_data_ready),
     .busy(spi_busy)
   );
-  `endif
+
+  reg [7:0] rom_data_pending;
+  reg [11:0] rom_last_read_addr;
+  reg [11:0] rom_next_addr_in_queue;
+  wire rom_addr_in_cache = (rom_last_read_addr == address_bus[11:0] ||
+                        rom_next_addr_in_queue == address_bus[11:0]);
+  // wire rom_addr_in_cache = (rom_cached_addr == address_bus_r[11:0]) || (rom_cached_addr + 1'b1 == address_bus_r[11:0]);
+  always @(posedge clk) begin
+    if (~rst_n)         spi_restart <= 0;
+    if (~rst_n)         rom_data_pending <= 0;
+    if (~rst_n)         rom_last_read_addr <= 0;
+    if (~rst_n)         rom_next_addr_in_queue <= 0;
+    if (~rst_n)         spi_data_ready_last <= 0;
+    if (spi_start_read) rom_last_read_addr <= address_bus[11:0];
+    if (spi_start_read) rom_next_addr_in_queue <= address_bus[11:0];
+    if (spi_start_read) spi_restart <= 0;
+    // if (spi_start_read) spi_stall_read <= 1;
+    if (rom_data_pending) spi_stall_read <= 1;
+    else if (valid_rom_address_on_bus && address_bus[11:0] == rom_next_addr_in_queue && spi_data_ready) spi_stall_read <= 0;
+    // if (spi_data_ready) rom_data <= spi_data_read;
+    if (spi_data_ready && !spi_data_ready_last) begin
+      rom_last_read_addr     <= rom_next_addr_in_queue;
+      rom_next_addr_in_queue <= rom_next_addr_in_queue + 1'b1;
+    end
+    // if (spi_stop_read)  rom_cached_addr <= 0;
+    if (spi_stop_read)  spi_restart <= 1;
+    // if (spi_data_ready) rom_cached_addr <= rom_cached_addr + 1'b1;
+    spi_data_ready_last <= spi_data_ready;
+    rom_data_pending <= spi_busy && !spi_data_ready;
+  end
+  wire        wait_for_memory = (clk_counter == 1) && (rom_data_pending > 0); // @TODO: clk_counter==1 needs to be rethought
+`else
   wire        wait_for_memory = 0;
+`endif
+
+    // // if (spi_data_ready) rom_data <= spi_data_read;
+    // if (rom_data_pending <= 2 && rom_addr_in_cache)
+    //   rom_data <= (rom_cached_addr == address_bus_r[11:0]) ? spi_data_read[15:8] : spi_data_read[7:0];
+
+  //   if (~rst_n) begin
+  //     rom_data_pending <= 0;
+  //     rom_cached_addr <= 0;
+  //   end else if (spi_start_read) begin
+  //     rom_data_pending <= 26*2;
+  //     rom_cached_addr <= address_bus_r[11:0];
+  //   end else if (rom_data_pending > 0)
+  //     rom_data_pending <= rom_data_pending - 1;
+  // end
+  // wire        wait_for_memory = (clk_counter == 1) && (rom_data_pending > 0); // @TODO: clk_counter==1 needs to be rethought
+  //  //cpu_enable && !stall_cpu && (rom_data_pending > 0);
 
 endmodule
