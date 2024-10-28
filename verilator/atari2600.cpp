@@ -73,25 +73,48 @@ int main(int argc, char* argv[]) {
     uint64_t start_ticks = SDL_GetPerformanceCounter();
     uint64_t frame_count = 0;
 
-
     for (int i = 0; i < TOTAL_RES; ++i) {
         Pixel& p = screenbuffer[i];
         p.a = p.b = p.g = p.r = 0xFF;
     }
 
-    // main loop
-    int screenbuffer_write_index = 0;
-    while (1) {
-        // // cycle the clock
+    // detect pixel clock / VGA mode
+    int current_hsync_length = 0;
+    int average_hsync_length = 0;
+    for (int i = 0; i < 800*16; ++i) {
         top->clk_pixel = 1;
         top->eval();
         top->clk_pixel = 0;
         top->eval();
 
+        if (top->hsync)
+        {
+            if (current_hsync_length > 0)
+            {
+                average_hsync_length = (average_hsync_length + current_hsync_length) / 2;
+                printf("hsync: %d\n", average_hsync_length);
+            }
+            current_hsync_length = 0;
+        }
+        else
+            current_hsync_length++;
+    }
+
+    // main loop
+    int screenbuffer_write_index = 0;
+    int clock_per_pixel = (average_hsync_length > 800) ? 2 : 1;
+    while (1) {
+        for (int i = 0; i < clock_per_pixel; ++i) {
+            // cycle the clock
+            top->clk_pixel = 1;
+            top->eval();
+            top->clk_pixel = 0;
+            top->eval();
+        }
+
         // update events and window once per VSYNC (or on overflow)
         const bool vsync_just_started = (top->vsync && screenbuffer_write_index > 0);
-        if (vsync_just_started || screenbuffer_write_index > TOTAL_RES)
-        {
+        if (vsync_just_started || screenbuffer_write_index > TOTAL_RES) {
             // check for quit event
             SDL_Event e;
             if (SDL_PollEvent(&e)) {
