@@ -63,6 +63,6 @@ module top  (
     assign b = {vga_6bpp_b, 6'd0};
 
     assign tia_vblank = demo_out_pmod2[5];
-    assign tia_vsync  = demo_out_pmod2[4];
+    assign tia_vsync  = demo_out_pmod2[6];
 
 endmodule

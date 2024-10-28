@@ -59,8 +59,8 @@ module tt_um_rejunity_atari2600 (
   wire [3:0] switches = 4'b1111;
   assign spi_data_in = uio_in[3:0];
 `else
-  assign uio_out = {audio_pwm, tia_vsync,       1'b0,        4'b0000};
-  assign uio_oe  = {     1'b1,      1'b1,       1'b1,        4'b0000};
+  assign uio_out = {audio_pwm, tia_vsync,       6'b000000};
+  assign uio_oe  = {     1'b1,      1'b1,       6'b000000};
   wire [3:0] switches = ~uio_in[3:0]; // TODO: pass switches together with input
                                       // adopt NES controller format
   // assign spi_data_in = 4'b0000;
