@@ -10,7 +10,7 @@ from cocotb.triggers import ClockCycles
 async def test_project(dut):
     dut._log.info("Start")
 
-    F = 2 # clock frequency multiplier
+    F = 1 # clock frequency multiplier
     
     # Set the clock period to 40 ns (25 MHz ~ VGA pixel clock)
     clock = Clock(dut.clk, 40//F, units="ns")
