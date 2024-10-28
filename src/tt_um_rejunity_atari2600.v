@@ -112,9 +112,7 @@ module tt_um_rejunity_atari2600 (
   //  NTSC scanline is mapped to 2 VGA scanlines
   //  Each Atari 2600 pixel is mapped to 4x2 VGA pixels
 
-  // We need to skip the last 2 pixels of each 800 VGA scanline
-  // to match TIA slightly shorter scanline 228*7=1596 clocks to pair of VGA 800*2=1600 scanlines
-  wire system_enable = vga_xpos < 798 && ~wait_for_vga_vsync && ~wait_for_memory;
+  wire system_enable = ~wait_for_vga_vsync && ~wait_for_memory;
 
   // reg [4:0] clk_counter;
   // always @(posedge clk) begin
