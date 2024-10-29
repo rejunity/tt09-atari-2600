@@ -487,11 +487,12 @@ module tt_um_rejunity_atari2600 (
   always @(posedge clk) begin
     // ROM
   `ifdef QSPI_ROM
-    // if (spi_data_ready) rom_data <= spi_data_read;
-    if (valid_rom_address_on_bus)
-      expected_rom_data <= rom[address_bus[11:0]];
-    if (valid_rom_address_on_bus && !wait_for_memory && rom_data != expected_rom_data)
-      $display("addr: %0H spi: %0H != %0H @ %0H", address_bus[11:0], rom_data, expected_rom_data, cpu.PC[15:0]);
+    `ifdef SIM
+      if (valid_rom_address_on_bus)
+        expected_rom_data <= rom[address_bus[11:0]];
+      if (valid_rom_address_on_bus && !wait_for_memory && rom_data != expected_rom_data)
+        $display("addr: %0H spi: %0H != %0H @ %0H", address_bus[11:0], rom_data, expected_rom_data, cpu.PC[15:0]);
+    `endif
   `else
     rom_data <= rom[address_bus[11:0]]; // makes yosys iCE40 BRAM inference happy
                                         // and allows it to be used as ROM storage

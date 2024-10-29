@@ -4,9 +4,13 @@
 // DVI PMOD 4bpph pcf: https://github.com/icebreaker-fpga/icebreaker-pmod/blob/master/dvi-4bit/icebreaker.pcf
 // Also see: https://projectf.io/posts/fpga-graphics/
 
+`default_nettype none
 `define VGA_6BPP
 // `define VGA_12BPP
 // `define DVI
+
+`define VGA_50MHz
+`define QSPI_ROM
 
 module vga_pll(
     input  clk_in,
@@ -16,6 +20,28 @@ module vga_pll(
 
     // iCE40 PLLs are documented in Lattice TN1251 and ICE Technology Library
 
+`ifdef VGA_50MHz
+    // 50.35 MHz (2x 25.175 MHz)
+    // USE Command line tool:
+    //    icepll -i 12 -o 50.35
+    // Given input frequency:        12.000 MHz
+    // Requested output frequency:   50.350 MHz
+    // Achieved output frequency:    50.250 MHz
+
+    SB_PLL40_PAD #(
+        .FEEDBACK_PATH("SIMPLE"),
+        .DIVR(4'b0000),         // DIVR =  0
+        .DIVF(7'b1000010),      // DIVF = 66
+        .DIVQ(3'b100),          // DIVQ =  4
+        .FILTER_RANGE(3'b001)   // FILTER_RANGE = 1
+    ) pll (
+        .LOCK(locked),
+        .RESETB(1'b1),
+        .BYPASS(1'b0),
+        .PACKAGEPIN(clk_in),
+        .PLLOUTCORE(clk_out)
+    );
+`else
     // 25.175 MHz
     // USE Command line tool:
     //    icepll -i 12 -o 25.175
@@ -36,27 +62,7 @@ module vga_pll(
         .PACKAGEPIN(clk_in),
         .PLLOUTCORE(clk_out)
     );
-
-    // 50.35 MHz (2x 25.175 MHz)
-    // USE Command line tool:
-    //    icepll -i 12 -o 50.35
-    // Given input frequency:        12.000 MHz
-    // Requested output frequency:   50.350 MHz
-    // Achieved output frequency:    50.250 MHz
-
-    // SB_PLL40_PAD #(
-    //     .FEEDBACK_PATH("SIMPLE"),
-    //     .DIVR(4'b0000),         // DIVR =  0
-    //     .DIVF(7'b1000010),      // DIVF = 66
-    //     .DIVQ(3'b100),          // DIVQ =  4
-    //     .FILTER_RANGE(3'b001)   // FILTER_RANGE = 1
-    // ) pll (
-    //     .LOCK(locked),
-    //     .RESETB(1'b1),
-    //     .BYPASS(1'b0),
-    //     .PACKAGEPIN(clk_in),
-    //     .PLLOUTCORE(clk_out)
-    // );
+`endif
 
 endmodule
 
@@ -137,29 +143,40 @@ module top (
     end
     wire reset_button = reset_button_hold_counter >= 60*800*525; // 1 sec
 
-    reg [7:0] out_pmod1;
-    reg [7:0] out_pmod2;
+    wire [7:0] pmod1_out;
+    wire [7:0] pmod2_out;
+    wire [7:0] pmod2_in;
     tt_um_rejunity_atari2600 atari2600(
         // localparam UP = 3, RIGHT = 6, LEFT = 5, DOWN = 4, SELECT = 2, RESET = 0, FIRE = 1;
         .ui_in({BTN3, BTN2, BTN3, BTN2, 1'b0, BTN1, BTN_N}),
-        .uo_out(out_pmod1),
-        .uio_in(8'h00),
-        .uio_out(out_pmod2),
+        .uo_out(pmod1_out),
+        .uio_in(pmod2_in),
+        .uio_out(pmod2_out),
         .uio_oe(),
         .ena(1'b1),
         .clk(clk_pixel),
         .rst_n(~(reset_button || reset_on_powerup))
     );
 
-    assign LED5 = out_pmod2[0];
+// `ifdef QSPI_ROM
+    qspi_rom_emu qspi_rom(
+        .clk        (pmod2_out[4]),
+        .select     (pmod2_out[5]),
+        .cmd_addr_in(pmod2_out[3:0]),
+        .data_out   (pmod2_in [3:0]));
+// `else
+    // assign pmod2_in = 8'b0000_0000;
+// `endif
+
+    assign LED5 = pmod2_out[7];
 
 `ifdef VGA_6BPP
     // TinyVGA by Mole99
     assign {
             vga_6bpp_hsync, vga_6bpp_b[0], vga_6bpp_g[0], vga_6bpp_r[0],
-            vga_6bpp_vsync, vga_6bpp_b[1], vga_6bpp_g[1], vga_6bpp_r[1]} = out_pmod1;
-                                                                         // ^ BTN1 * (out_pmod2[0] * 8'b0111_0111);
-    assign pmod_1b = {8{out_pmod2[0]}};
+            vga_6bpp_vsync, vga_6bpp_b[1], vga_6bpp_g[1], vga_6bpp_r[1]} = pmod1_out;
+
+    assign pmod_1b = {8{pmod2_out[7]}};
 `elsif VGA_12BPP
     // VGA double PMOD from Digilent
     assign {vga_12bpp_r, vga_12bpp_g, vga_12bpp_b,
@@ -174,11 +191,11 @@ module top (
 
 `ifdef VGA_6BPP
 `else 
-    wire h_sync = out_pmod1[7];
-    wire v_sync = out_pmod1[3];
-    wire [11:0] pixel_12bpp_rgb =  {out_pmod1[4], out_pmod1[0], 2'b00,
-                                    out_pmod1[5], out_pmod1[1], 2'b00,
-                                    out_pmod1[6], out_pmod1[2], 2'b00};
+    wire h_sync = pmod1_out[7];
+    wire v_sync = pmod1_out[3];
+    wire [11:0] pixel_12bpp_rgb =  {pmod1_out[4], pmod1_out[0], 2'b00,
+                                    pmod1_out[5], pmod1_out[1], 2'b00,
+                                    pmod1_out[6], pmod1_out[2], 2'b00};
 `endif
 
 endmodule

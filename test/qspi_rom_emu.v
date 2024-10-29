@@ -8,11 +8,12 @@ module qspi_rom_emu #(parameter ADDR_BITS = 24) (
 );
   parameter DATA_WIDTH_BYTES = 1;
   localparam CMD    = 8;
-  localparam ADDR   = CMD   + ADDR_BITS/4;  // receive address -> read pointer
-  localparam LOAD   = ADDR  + 3;            // load 2 bytes ahead: 1) 1st byte
-  localparam LOAD2  = LOAD  + 1;            //                     2) 2nd byte
-  localparam INCA   = LOAD2 + 1;            // advance read pointer by 2 bytes
-  localparam DATA   = INCA  + 1;            // serve data
+  localparam ADDR   = CMD  + ADDR_BITS/4; // receive address
+  localparam LOAD   = ADDR + 2;           // load 2 bytes ahead: 1) 1st byte
+  localparam INCA   = LOAD + 1;           //                     advance read addr
+  localparam LOAD2  = LOAD + 2;           //                     2) 2nd byte
+  localparam INC2   = LOAD + 3;           //                     advance read addr
+  localparam DATA   = LOAD + 4;           // serve data
 
   reg [7:0] counter;
   reg [ADDR_BITS-1:0] addr;
@@ -23,9 +24,10 @@ module qspi_rom_emu #(parameter ADDR_BITS = 24) (
       counter <= counter + 1;
       if      (counter <  CMD)  addr            <= 0;
       else if (counter < ADDR)  addr            <= {addr[ADDR_BITS-1-4:0], cmd_addr_in};
-      else if (counter < LOAD)  data[15:8]      <= rom[addr[11:0]       ];
-      else if (counter < LOAD2) data[7:0]       <= rom[addr[11:0] + 1'b1];
-      else if (counter < INCA)  addr            <= addr + 2;
+      else if (counter < LOAD)  data[15:8]      <= rom[addr[11:0]];
+      else if (counter < INCA)  addr            <= addr + 1;
+      else if (counter < LOAD2) data[7:0]       <= rom[addr[11:0]];
+      else if (counter < INC2)  addr            <= addr + 1;
       else if (counter < DATA)  data_out        <= data[15-:4]; // 1st nibble
       else begin           
                                 data_out        <= data[11-:4]; // 2nd nibble
