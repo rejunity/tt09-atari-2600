@@ -131,7 +131,7 @@ module top (
 
     reg reset_on_powerup = 1;
     always @(posedge clk_pixel)
-        if (reset_on_powerup & counter > 10)
+        if (reset_on_powerup & counter > 512)
             reset_on_powerup <= 0;
 
     reg [31:0] reset_button_hold_counter;
