@@ -589,6 +589,11 @@ module tt_um_rejunity_atari2600 (
     // if (spi_data_ready) rom_cached_addr <= rom_cached_addr + 1'b1;
     spi_data_ready_last <= spi_data_ready;
     rom_data_pending <= spi_busy && !spi_data_ready;
+
+    // misses in Pitfall and Riverraid
+    // 65..70% within ±4 bytes
+    //  8..9%  within +4 bytes
+    end
   end
   wire        wait_for_memory = (clk_counter == 1) && (rom_data_pending > 0); // @TODO: clk_counter==1 needs to be rethought
 `else
