@@ -158,15 +158,15 @@ module top (
         .rst_n(~(reset_button || reset_on_powerup))
     );
 
-// `ifdef QSPI_ROM
+`ifdef QSPI_ROM
     qspi_rom_emu qspi_rom(
         .clk        (pmod2_out[4]),
         .select     (pmod2_out[5]),
         .cmd_addr_in(pmod2_out[3:0]),
         .data_out   (pmod2_in [3:0]));
-// `else
-    // assign pmod2_in = 8'b0000_0000;
-// `endif
+`else
+    assign pmod2_in = 8'b0000_0000;
+`endif
 
     assign LED5 = pmod2_out[7];
 
