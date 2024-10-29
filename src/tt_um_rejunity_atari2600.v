@@ -134,7 +134,11 @@ module tt_um_rejunity_atari2600 (
   //  Each Atari 2600 pixel is mapped to 4x2 VGA pixels
   
   // wire wait_for_vga_sync = 0; // @TEMP: while debuging QSPI
-  wire wait_for_vga_sync = tia_ypos > 20 && (vga_ypos != tia_ypos * 2);
+  // wire wait_for_vga_sync = tia_ypos > 20 && (vga_ypos != tia_ypos * 2);
+  // wire wait_for_vga_sync = tia_ypos > 20 && tia_ypos < 250 && (vga_ypos < tia_ypos * 2);
+  // wire wait_for_vga_sync = tia_ypos > 36 && tia_ypos < 230 && (vga_ypos < tia_ypos * 2);
+  wire wait_for_vga_sync = tia_ypos > 36 && (vga_ypos < tia_ypos * 2);
+
 
   reg [6:0] scanline [255:0];
   wire [7:0] tia_xpos;
