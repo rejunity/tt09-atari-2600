@@ -4,10 +4,10 @@
  */
 
 `default_nettype none
-`define VGA_RESYNC_TO_TIA
+// `define VGA_RESYNC_TO_TIA
 // `define VGA_REGISTERED_OUTPUTS
 // `define VGA_50MHz
-// `define QSPI_ROM
+`define QSPI_ROM
 
 module tt_um_rejunity_atari2600 (
     input  wire [7:0] ui_in,    // Dedicated inputs

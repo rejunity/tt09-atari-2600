@@ -8,8 +8,7 @@
 // `define VGA_12BPP
 // `define DVI
 
-// `define VGA_50MHz
-// `define QSPI_ROM
+`define QSPI_ROM
 
 module top  (
     input  wire clk_pixel,
