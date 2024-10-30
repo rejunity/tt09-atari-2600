@@ -9,7 +9,8 @@
 // `define VGA_12BPP
 // `define DVI
 
-`define VGA_50MHz
+// `define VGA_50MHz
+// `define QSPI_ROM_EMU
 `define QSPI_ROM
 
 module vga_pll(
@@ -80,6 +81,13 @@ module top (
     output LED4,
     output LED5,
 
+    output FLASH_SCK,
+    output FLASH_SSB,
+    inout  FLASH_IO0,
+    inout  FLASH_IO1,
+    inout  FLASH_IO2,
+    inout  FLASH_IO3,
+
 `ifdef VGA_6BPP
     output           vga_6bpp_hsync,
     output           vga_6bpp_vsync,
@@ -146,27 +154,18 @@ module top (
     wire [7:0] pmod1_out;
     wire [7:0] pmod2_out;
     wire [7:0] pmod2_in;
+    wire [7:0] pmod2_oe;
     tt_um_rejunity_atari2600 atari2600(
         // localparam UP = 3, RIGHT = 6, LEFT = 5, DOWN = 4, SELECT = 2, RESET = 0, FIRE = 1;
         .ui_in({BTN3, BTN2, BTN3, BTN2, 1'b0, BTN1, BTN_N}),
         .uo_out(pmod1_out),
         .uio_in(pmod2_in),
         .uio_out(pmod2_out),
-        .uio_oe(),
+        .uio_oe(pmod2_oe),
         .ena(1'b1),
         .clk(clk_pixel),
         .rst_n(~(reset_button || reset_on_powerup))
     );
-
-`ifdef QSPI_ROM
-    qspi_rom_emu qspi_rom(
-        .clk        (pmod2_out[4]),
-        .select     (pmod2_out[5]),
-        .cmd_addr_in(pmod2_out[3:0]),
-        .data_out   (pmod2_in [3:0]));
-`else
-    assign pmod2_in = 8'b0000_0000;
-`endif
 
     assign LED5 = pmod2_out[7];
 
@@ -196,6 +195,67 @@ module top (
     wire [11:0] pixel_12bpp_rgb =  {pmod1_out[4], pmod1_out[0], 2'b00,
                                     pmod1_out[5], pmod1_out[1], 2'b00,
                                     pmod1_out[6], pmod1_out[2], 2'b00};
+`endif
+
+
+`ifdef QSPI_ROM
+    assign FLASH_SCK = pmod2_out[4];
+    assign FLASH_SSB = pmod2_out[5];
+
+    // FLASH_IO1..IO3 are bidirectional pins
+    // iCE40 IO are documented in Lattice iCE40 Family Handbook
+    // PIN_TYPE 
+    //  PIN_OUTPUT_TRISTATE  1010       Non-registered tristate output
+    //  PIN_INPUT            01         Direct not-registered input
+    SB_IO #(
+        .PIN_TYPE(6'b1010_01),  // Tri-state buffer with bidirectional control, not registered
+        .PULLUP(1'b0)
+    ) io0 (
+        .PACKAGE_PIN(FLASH_IO0),
+        .OUTPUT_ENABLE(pmod2_oe[0]),
+        .D_OUT_0(pmod2_out[0]),
+        .D_IN_0(pmod2_in[0])
+    );
+
+    SB_IO #(
+        .PIN_TYPE(6'b1010_01),  // Tri-state buffer with bidirectional control, not registered
+        .PULLUP(1'b0)
+    ) io1 (
+        .PACKAGE_PIN(FLASH_IO1),
+        .OUTPUT_ENABLE(pmod2_oe[1]),
+        .D_OUT_0(pmod2_out[1]),
+        .D_IN_0(pmod2_in[1])
+    );
+
+    SB_IO #(
+        .PIN_TYPE(6'b1010_01),  // Tri-state buffer with bidirectional control, not registered
+        .PULLUP(1'b0)
+    ) io2 (
+        .PACKAGE_PIN(FLASH_IO2),
+        .OUTPUT_ENABLE(pmod2_oe[2]),
+        .D_OUT_0(pmod2_out[2]),
+        .D_IN_0(pmod2_in[2])
+    );
+
+    SB_IO #(
+        .PIN_TYPE(6'b1010_01),  // Tri-state buffer with bidirectional control, not registered
+        .PULLUP(1'b0)
+    ) io3 (
+        .PACKAGE_PIN(FLASH_IO3),
+        .OUTPUT_ENABLE(pmod2_oe[3]),
+        .D_OUT_0(pmod2_out[3]),
+        .D_IN_0(pmod2_in[3])
+    );
+
+`elif QSPI_ROM_EMU
+    qspi_rom_emu qspi_rom(
+        .clk        (pmod2_out[4]),
+        .select     (pmod2_out[5]),
+        .cmd_addr_in(pmod2_out[3:0]),
+        .data_out   (pmod2_in [3:0]));
+
+`else
+    assign pmod2_in = 8'b0000_0000;
 `endif
 
 endmodule
