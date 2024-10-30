@@ -13,7 +13,7 @@ icebreaker.json: icebreaker.v ../src/tt_um_rejunity_atari2600.v ../src/vga_hvsyn
 	nextpnr-ice40 --up5k --package sg48 --freq 12 --asc $@ --pcf icebreaker.pcf --json $<
 
 %.bin: %.asc
-	icepack $< $@
+	icepack -s $< $@
 
 %.rpt: %.asc
 	icetime -d up5k -mtr $@ $<
