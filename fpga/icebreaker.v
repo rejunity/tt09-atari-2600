@@ -247,7 +247,7 @@ module top (
         .D_IN_0(pmod2_in[3])
     );
 
-`elif QSPI_ROM_EMU
+`elsif QSPI_ROM_EMU
     qspi_rom_emu qspi_rom(
         .clk        (pmod2_out[4]),
         .select     (pmod2_out[5]),
