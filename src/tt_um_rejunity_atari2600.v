@@ -406,7 +406,7 @@ module tt_um_rejunity_atari2600 (
   reg [7:0] ram [ 127:0];
   reg [7:0] rom [4095:0];
   initial begin
-    $readmemh("../roms/rom.mem", rom, 0, 4095);
+    $readmemh("../roms/rom_builtin.mem", rom, 0, 4095);
     // DEBUG: override reset vector
     // rom[12'hFFD] <= 8'hF0; rom[12'hFFC] <= 8'h00;
   end
