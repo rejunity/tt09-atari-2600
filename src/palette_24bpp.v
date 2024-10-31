@@ -43,7 +43,7 @@ module palette(
     ntsc_palette[25]  = 24'h983418;
     ntsc_palette[26]  = 24'hac5030;
     ntsc_palette[27]  = 24'hc06848;
-    ntsc_palette[28]  = 24'hd0985c;
+    ntsc_palette[28]  = 24'hd0805c;
     ntsc_palette[29]  = 24'he09470;
     ntsc_palette[30]  = 24'heca880;
     ntsc_palette[31]  = 24'hfcbc94;
