@@ -86,7 +86,7 @@ module palette(
 
     ntsc_palette[64]  = 24'h000088; // Blue
     ntsc_palette[65]  = 24'h1c209c;
-    ntsc_palette[66]  = 24'h3440b0;
+    ntsc_palette[66]  = 24'h3840b0;
     ntsc_palette[67]  = 24'h505cc0;
     ntsc_palette[68]  = 24'h6874d0;
     ntsc_palette[69]  = 24'h7c8ce0;
