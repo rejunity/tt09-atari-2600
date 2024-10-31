@@ -59,12 +59,15 @@ int main(int argc, char* argv[]) {
     // initialize Verilog module
     Vtop* top = new Vtop;
 
-    // // reset
+power_on:
+    // reset
     top->reset = 1;
-    top->clk_pixel = 0;
-    top->eval();
-    top->clk_pixel = 1;
-    top->eval();
+    for (int i = 0; i < 2000; ++i) {
+        top->clk_pixel = 0;
+        top->eval();
+        top->clk_pixel = 1;
+        top->eval();
+    }
     top->reset = 0;
     top->clk_pixel = 0;
     top->eval();
@@ -122,7 +125,8 @@ int main(int argc, char* argv[]) {
                     break;
                 }
             }
-            if (keyb_state[SDL_SCANCODE_Q]) break;  // quit if user presses 'Q'
+            if (keyb_state[SDL_SCANCODE_Q]) break;          // quit  if 'Q' was pressed
+            if (keyb_state[SDL_SCANCODE_R]) goto power_on;  // reset if 'R' was pressed
 
 
             top->btn_fire   = keyb_state[SDL_SCANCODE_SPACE];
