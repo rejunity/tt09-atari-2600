@@ -187,8 +187,8 @@ module top (
 
 
 `ifdef QSPI_ROM
-    assign FLASH_SCK = pmod2_out[4];
-    assign FLASH_SSB = pmod2_out[5];
+    assign FLASH_SCK = pmod2_out[3];
+    assign FLASH_SSB = pmod2_out[0];
 
     // FLASH_IO1..IO3 are bidirectional pins
     // iCE40 IO are documented in Lattice iCE40 Family Handbook
@@ -200,16 +200,6 @@ module top (
         .PULLUP(1'b0)
     ) io0 (
         .PACKAGE_PIN(FLASH_IO0),
-        .OUTPUT_ENABLE(pmod2_oe[0]),
-        .D_OUT_0(pmod2_out[0]),
-        .D_IN_0(pmod2_in[0])
-    );
-
-    SB_IO #(
-        .PIN_TYPE(6'b1010_01),  // Tri-state buffer with bidirectional control, not registered
-        .PULLUP(1'b0)
-    ) io1 (
-        .PACKAGE_PIN(FLASH_IO1),
         .OUTPUT_ENABLE(pmod2_oe[1]),
         .D_OUT_0(pmod2_out[1]),
         .D_IN_0(pmod2_in[1])
@@ -218,8 +208,8 @@ module top (
     SB_IO #(
         .PIN_TYPE(6'b1010_01),  // Tri-state buffer with bidirectional control, not registered
         .PULLUP(1'b0)
-    ) io2 (
-        .PACKAGE_PIN(FLASH_IO2),
+    ) io1 (
+        .PACKAGE_PIN(FLASH_IO1),
         .OUTPUT_ENABLE(pmod2_oe[2]),
         .D_OUT_0(pmod2_out[2]),
         .D_IN_0(pmod2_in[2])
@@ -228,19 +218,29 @@ module top (
     SB_IO #(
         .PIN_TYPE(6'b1010_01),  // Tri-state buffer with bidirectional control, not registered
         .PULLUP(1'b0)
+    ) io2 (
+        .PACKAGE_PIN(FLASH_IO2),
+        .OUTPUT_ENABLE(pmod2_oe[4]),
+        .D_OUT_0(pmod2_out[4]),
+        .D_IN_0(pmod2_in[4])
+    );
+
+    SB_IO #(
+        .PIN_TYPE(6'b1010_01),  // Tri-state buffer with bidirectional control, not registered
+        .PULLUP(1'b0)
     ) io3 (
         .PACKAGE_PIN(FLASH_IO3),
-        .OUTPUT_ENABLE(pmod2_oe[3]),
-        .D_OUT_0(pmod2_out[3]),
-        .D_IN_0(pmod2_in[3])
+        .OUTPUT_ENABLE(pmod2_oe[5]),
+        .D_OUT_0(pmod2_out[5]),
+        .D_IN_0(pmod2_in[5])
     );
 
 `elsif QSPI_ROM_EMU
     qspi_rom_emu qspi_rom(
-        .clk        (pmod2_out[4]),
-        .select     (pmod2_out[5]),
-        .cmd_addr_in(pmod2_out[3:0]),
-        .data_out   (pmod2_in [3:0]));
+        .clk        (pmod2_out[3]),
+        .select     (pmod2_out[0]),
+        .cmd_addr_in({pmod2_out[5:4], pmod2_out[2:1]}),
+        .data_out   ({pmod2_in [5:4], pmod2_in [2:1]}));
 
 `else
     assign pmod2_in = 8'b0000_0000;

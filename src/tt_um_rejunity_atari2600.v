@@ -56,14 +56,32 @@ module tt_um_rejunity_atari2600 (
   assign uo_out = {hsync, B[0], G[0], R[0], vsync, B[1], G[1], R[1]};
 `endif
 
-  // Audio PMOD + ROM SPI
+  // ROM QSPI + Audio PMODs
+  // QSPI PMod: https://github.com/mole99/qspi-pmod
+  //  - PMOD1 uio[0]  CS0         (@TODO: validate this one is Flash)
+  //  - PMOD2 uio[1]  SD0/MOSI
+  //  - PMOD3 uio[2]  SD1/MISO
+  //  - PMOD4 uio[3]  SCK
+  //  - PMOD5 uio[4]  SD2
+  //  - PMOD6 uio[5]  SD3
+  //  - PMOD7 uio[6]  CS1
+  //  - PMOD8 uio[7]  CS2
+  // Audio PMOD: https://github.com/MichaelBell/tt-audio-pmod
+  //  - PMOD8 uio[7]  PWM Audio
   // 1 bidirectional pin is unused (tia_vsync for diagostics in Verilator)
-  // TODO: output video_active for DVI instead
+  // @TODO: output video_active for DVI instead
+  // @TODO: validate with Digilent SDCard PMOD as well
+  //  - PMOD1 uio[0]  ~CS/DAT3
+  //  - PMOD2 uio[1]  MOSI
+  //  - PMOD3 uio[2]  MISO
+  //  - PMOD4 uio[3]  SCK
+  //  - PMOD5 uio[4]  DAT1
+  //  - PMOD6 uio[5]  DAT2
 `ifdef QSPI_ROM
-  assign uio_out = {audio_pwm, tia_vsync, spi_select, spi_clk_out, spi_data_out};
-  assign uio_oe  = {     1'b1,      1'b1,       1'b1,        1'b1,  spi_data_oe};
+  assign uio_out = {audio_pwm, tia_vsync, spi_data_out[3:2], spi_clk_out, spi_data_out[1:0], spi_select};
+  assign uio_oe  = {     1'b1,      1'b1,  spi_data_oe[3:2],        1'b1,  spi_data_oe[1:0],       1'b1};
   wire [3:0] switches = 4'b1111;
-  assign spi_data_in = uio_in[3:0];
+  assign spi_data_in = {uio_in[5:4], uio_in[2:1]};
 `else
   assign uio_out = {audio_pwm, tia_vsync,       6'b000000};
   assign uio_oe  = {     1'b1,      1'b1,       6'b000000};
