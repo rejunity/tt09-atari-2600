@@ -63,7 +63,6 @@ module tt_um_rejunity_atari2600 (
   assign uio_oe  = {     1'b1,      1'b1,       6'b000000};
   wire [3:0] switches = ~uio_in[3:0]; // TODO: pass switches together with input
                                       // adopt NES controller format
-  // assign spi_data_in = 4'b0000;
 `endif
 
   // Suppress unused signals warning
@@ -509,7 +508,7 @@ module tt_um_rejunity_atari2600 (
     if (cpu_enable && write_enable && ram_cs) ram[address_bus[6:0]] <= data_out;
 
     // CPU reads
-    if (ram_cs) data_in <= ram_data; // ram[address_bus[ 6:0]];
+    if (ram_cs) data_in <= ram_data;
     if (rom_cs) data_in <= rom_data;
     if (tia_cs) data_in <= tia_data_out;
     if (pia_cs) data_in <= pia_data_out;
@@ -579,7 +578,6 @@ module tt_um_rejunity_atari2600 (
     // if (spi_start_read) spi_stall_read <= 1;
     if (rom_data_pending) spi_stall_read <= 1;
     else if (valid_rom_address_on_bus && address_bus[11:0] == rom_next_addr_in_queue && spi_data_ready) spi_stall_read <= 0;
-    // if (spi_data_ready) rom_data <= spi_data_read;
     if (spi_data_ready && !spi_data_ready_last) begin
       rom_last_read_addr     <= rom_next_addr_in_queue;
       rom_next_addr_in_queue <= rom_next_addr_in_queue + 1'b1;
@@ -598,21 +596,5 @@ module tt_um_rejunity_atari2600 (
 `else
   wire        wait_for_memory = 0;
 `endif
-
-    // // if (spi_data_ready) rom_data <= spi_data_read;
-    // if (rom_data_pending <= 2 && rom_addr_in_cache)
-    //   rom_data <= (rom_cached_addr == address_bus_r[11:0]) ? spi_data_read[15:8] : spi_data_read[7:0];
-
-  //   if (~rst_n) begin
-  //     rom_data_pending <= 0;
-  //     rom_cached_addr <= 0;
-  //   end else if (spi_start_read) begin
-  //     rom_data_pending <= 26*2;
-  //     rom_cached_addr <= address_bus_r[11:0];
-  //   end else if (rom_data_pending > 0)
-  //     rom_data_pending <= rom_data_pending - 1;
-  // end
-  // wire        wait_for_memory = (clk_counter == 1) && (rom_data_pending > 0); // @TODO: clk_counter==1 needs to be rethought
-  //  //cpu_enable && !stall_cpu && (rom_data_pending > 0);
 
 endmodule
