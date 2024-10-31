@@ -6,6 +6,7 @@
 `default_nettype none
 // `define VGA_RESYNC_TO_TIA
 // `define VGA_REGISTERED_OUTPUTS
+// `define VALIDATE_QSPI_ROM_AGAINST_INTERNAL_ROM
 // `define VGA_50MHz
 `define QSPI_ROM
 
@@ -19,7 +20,12 @@ module tt_um_rejunity_atari2600 (
     input  wire       clk,      // clock
     input  wire       rst_n     // reset_n - low to reset
 );
-
+  
+  // Configuration captured during RESET phase
+  always @(posedge clk)
+    if (~rst_n)
+       use_internal_rom <= ui_in[1];
+  
   // VGA signals
   wire hsync;
   wire vsync;
@@ -484,22 +490,22 @@ module tt_um_rejunity_atari2600 (
   wire pia_cs = (address_bus[12] == 0 && address_bus[7] == 1 && address_bus[9] == 1);
   wire ram_cs = (address_bus[12] == 0 && address_bus[7] == 1 && address_bus[9] == 0);
 
-  reg [7:0] expected_rom_data;
-  reg [7:0] rom_data;
+  reg use_internal_rom;
+  wire [7:0] rom_data = use_internal_rom ? internal_rom_data : external_rom_data;
+  reg [7:0] internal_rom_data;
+  reg [7:0] external_rom_data;
   reg [7:0] ram_data;
   always @(posedge clk) begin
-    // ROM
-  `ifdef QSPI_ROM
+
+  `ifdef VALIDATE_QSPI_ROM_AGAINST_INTERNAL_ROM
     `ifdef SIM
       if (valid_rom_address_on_bus)
-        expected_rom_data <= rom[address_bus[11:0]];
-      if (valid_rom_address_on_bus && !wait_for_memory && rom_data != expected_rom_data)
-        $display("addr: %0H spi: %0H != %0H @ %0H", address_bus[11:0], rom_data, expected_rom_data, cpu.PC[15:0]);
+        internal_rom_data <= rom[address_bus[11:0]];
+      if (!use_internal_rom && valid_rom_address_on_bus && !wait_for_memory && external_rom_data != internal_rom_data)
+        $display("ROM fail: %0H spi: %0H != %0H @ %0H", address_bus[11:0], external_rom_data, internal_rom_data, cpu.PC[15:0]);
     `endif
   `else
-    rom_data <= rom[address_bus[11:0]]; // makes yosys iCE40 BRAM inference happy
-                                        // and allows it to be used as ROM storage
-
+    internal_rom_data <= rom[address_bus[11:0]];
   `endif
 
     ram_data <= ram[address_bus[ 6:0]]; // makes yosys iCE40 BRAM inference happy
@@ -555,7 +561,7 @@ module tt_um_rejunity_atari2600 (
     .stop_read(spi_stop_read),
 
     // .data_out(spi_data_read),
-    .data_out(rom_data),
+    .data_out(external_rom_data),
     .data_ready(spi_data_ready),
     .busy(spi_busy)
   );
