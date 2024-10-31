@@ -34,7 +34,7 @@ module palette(
     ntsc_palette[17]  = 24'h844414;
     ntsc_palette[18]  = 24'h985c28;
     ntsc_palette[19]  = 24'hac783c;
-    ntsc_palette[20]  = 24'hbc8c4d;
+    ntsc_palette[20]  = 24'hbc8c4d; // D. Beer color vaue tiny bit differs: hBC8C4C
     ntsc_palette[21]  = 24'hcca05c;
     ntsc_palette[22]  = 24'hdcb468;
     ntsc_palette[23]  = 24'hecc878;
