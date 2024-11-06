@@ -44,7 +44,7 @@ module tt_um_rejunity_atari2600 (
     else
       audio_pwm_accumulator <= audio_pwm_accumulator[4:0] + audio;
   end
-  wire audio_pwm = 0;// @TEMP: audio_pwm_accumulator[5];
+  wire audio_pwm = audio_pwm_accumulator[5];
 
   // TinyVGA PMOD
 `ifdef VGA_REGISTERED_OUTPUTS
