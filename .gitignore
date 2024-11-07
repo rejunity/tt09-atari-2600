@@ -1,6 +1,8 @@
 .DS_Store
 .idea
 *.vcd
+*.sym
+*.out
 runs
 tt_submission
 src/user_config.json
@@ -9,3 +11,9 @@ test/sim_build
 test/__pycache__/
 test/results.xml
 test/gate_level_netlist.v
+verilator/obj_dir/
+verilator/a2600
+fpga/*.asc
+fpga/*.bin
+fpga/*.json
+fpga/*.rpt
