@@ -146,6 +146,40 @@ module tb ();
                         user_project.\atari2600.cpu.AXYS[3][1] ,
                         user_project.\atari2600.cpu.AXYS[3][0] };
 
+  wire qspi_restart    = user_project.spi_restart ;
+  wire qspi_data_ready = user_project.\flash_rom.data_ready ;
+  wire qspi_stall_read = user_project.\flash_rom.stall_read ;
+  wire [ 2:0] qspi_state = { 
+                     user_project.\flash_rom.fsm_state[2] ,
+                     user_project.\flash_rom.fsm_state[1] ,
+                     user_project.\flash_rom.fsm_state[0] };
+  wire [23:0] qspi_addr = { 
+                     user_project.\flash_rom.addr[23] ,
+                     user_project.\flash_rom.addr[22] ,
+                     user_project.\flash_rom.addr[21] ,
+                     user_project.\flash_rom.addr[20] ,
+                     user_project.\flash_rom.addr[19] ,
+                     user_project.\flash_rom.addr[18] ,
+                     user_project.\flash_rom.addr[17] ,
+                     user_project.\flash_rom.addr[16] ,
+
+                     user_project.\flash_rom.addr[15] ,
+                     user_project.\flash_rom.addr[14] ,
+                     user_project.\flash_rom.addr[13] ,
+                     user_project.\flash_rom.addr[12] ,
+                     user_project.\flash_rom.addr[11] ,
+                     user_project.\flash_rom.addr[10] ,
+                     user_project.\flash_rom.addr[9] ,
+                     user_project.\flash_rom.addr[8] ,
+                     user_project.\flash_rom.addr[7] ,
+                     user_project.\flash_rom.addr[6] ,
+                     user_project.\flash_rom.addr[5] ,
+                     user_project.\flash_rom.addr[4] ,
+                     user_project.\flash_rom.addr[3] ,
+                     user_project.\flash_rom.addr[2] ,
+                     user_project.\flash_rom.addr[1] ,
+                     user_project.\flash_rom.addr[0] };
+
 `endif
 
   qspi_rom_emu qspi_rom_emu(
