@@ -146,8 +146,7 @@ module atari2600 (
     .dat_i(pia_data_in),
     .dat_o(pia_data_out),
     .buttons(input_joystick_0),
-    .sw(input_switches),
-    .tia_ypos(tia_ypos)
+    .sw(input_switches)
   );
 
   reg [7:0] ram [ 127:0]; // Built-in RAM (part of PIA/RIOT chip): 128 bytes
