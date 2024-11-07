@@ -222,15 +222,15 @@ module tt_um_rejunity_atari2600 (
       .rgb_24bpp(rgb_24bpp)
   );
 
-  assign {R, G, B} = (!video_active || tia_vblank) ? 6'b00_00_00:
-                                      {rgb_24bpp[23], rgb_24bpp[23-1],
-                                       rgb_24bpp[15], rgb_24bpp[15-1],
-                                       rgb_24bpp[ 7], rgb_24bpp[ 7-1]};
   // @TEMP:
   // assign {R, G, B} = (!video_active || tia_vblank) ? 6'b00_00_00:
-  //                                                   {r_pwm_accum_[9-:2],
-  //                                                    g_pwm_accum_[9-:2],
-  //                                                    b_pwm_accum_[9-:2]};
+  //                                     {rgb_24bpp[23], rgb_24bpp[23-1],
+  //                                      rgb_24bpp[15], rgb_24bpp[15-1],
+  //                                      rgb_24bpp[ 7], rgb_24bpp[ 7-1]};
+  assign {R, G, B} = (!video_active || tia_vblank) ? 6'b00_00_00:
+                                                    {r_pwm_accum_[9-:2],
+                                                     g_pwm_accum_[9-:2],
+                                                     b_pwm_accum_[9-:2]};
   reg [9:0] r_pwm_accum;
   reg [9:0] g_pwm_accum;
   reg [9:0] b_pwm_accum;
