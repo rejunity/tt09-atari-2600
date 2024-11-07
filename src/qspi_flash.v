@@ -123,7 +123,7 @@ module qspi_flash_controller #(parameter DATA_WIDTH_BYTES=2, parameter ADDR_BITS
     end
 
     always @(posedge clk) begin
-        if (fsm_state == FSM_DATA && !spi_clk_out) begin
+        if (fsm_state == FSM_DATA && spi_clk_out) begin
             data <= {data[DATA_WIDTH_BITS-5:0], spi_data_in};
         end
     end
