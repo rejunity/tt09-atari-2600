@@ -149,10 +149,10 @@ module tb ();
 `endif
 
   qspi_rom_emu qspi_rom(
-    .clk        (uio_out[4]),
-    .select     (uio_out[5]),
-    .cmd_addr_in(uio_out[3:0]),
-    .data_out   ( uio_in[3:0]));
+    .clk        ( uio_out[3]),
+    .select     ( uio_out[0]),
+    .cmd_addr_in({uio_out[5:4], uio_out[2:1]}),
+    .data_out   ({ uio_in[5:4], uio_in [2:1]}));
 
   // Wire up the inputs and outputs:
   reg clk;
