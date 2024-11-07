@@ -21,6 +21,7 @@ project:
     - "vga_hvsync_generator.v"
     - "palette_24bpp.v"
     - "qspi_flash.v"
+    - "atari2600.v"
     - "6502.v"
     - "ALU.v"
     - "TIA.v"
