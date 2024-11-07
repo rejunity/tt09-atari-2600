@@ -11,7 +11,7 @@ module tb ();
   initial begin
     $dumpfile("tb.vcd");
 `ifdef GL_TEST
-    $dumpvars(1, tb);
+    $dumpvars(1, tb, qspi_rom_emu);
 `else
     $dumpvars(0, tb);
 `endif
@@ -148,8 +148,10 @@ module tb ();
 
 `endif
 
-  qspi_rom_emu qspi_rom(
-    .clk        ( uio_out[3]),
+  qspi_rom_emu qspi_rom_emu(
+    .clk        (clk),
+    .reset      (~rst_n),
+    .sclk       ( uio_out[3]),
     .select     ( uio_out[0]),
     .cmd_addr_in({uio_out[5:4], uio_out[2:1]}),
     .data_out   ({ uio_in[5:4], uio_in [2:1]}));

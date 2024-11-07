@@ -64,8 +64,10 @@ module top  (
     assign b = {vga_6bpp_b, 6'd0};
 
 `ifdef QSPI_ROM
-    qspi_rom_emu qspi_rom(
-        .clk        (pmod2_out[3]),
+    qspi_rom_emu qspi_rom_emu(
+        .clk        (clk_pixel),
+        .reset      (reset),
+        .sclk       (pmod2_out[3]),
         .select     (pmod2_out[0]),
         .cmd_addr_in({pmod2_out[5:4], pmod2_out[2:1]}),
         .data_out   ({pmod2_in [5:4], pmod2_in [2:1]}));

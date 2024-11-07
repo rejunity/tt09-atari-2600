@@ -138,6 +138,7 @@ module top (
             reset_button_hold_counter <= 0;
     end
     wire reset_button = reset_button_hold_counter >= 60*800*525; // 1 sec
+    wire reset = reset_button || reset_on_powerup;
 
     wire [7:0] pmod1_out;
     wire [7:0] pmod2_out;
@@ -152,7 +153,7 @@ module top (
         .uio_oe(pmod2_oe),
         .ena(1'b1),
         .clk(clk_pixel),
-        .rst_n(~(reset_button || reset_on_powerup))
+        .rst_n(~reset)
     );
 
     assign LED5 = pmod2_out[7];
@@ -236,8 +237,10 @@ module top (
     );
 
 `elsif QSPI_ROM_EMU
-    qspi_rom_emu qspi_rom(
-        .clk        (pmod2_out[3]),
+    qspi_rom_emu qspi_rom_emu(
+        .clk        (clk_pixel),
+        .reset      (reset),
+        .sclk       (pmod2_out[3]),
         .select     (pmod2_out[0]),
         .cmd_addr_in({pmod2_out[5:4], pmod2_out[2:1]}),
         .data_out   ({pmod2_in [5:4], pmod2_in [2:1]}));
