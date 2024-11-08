@@ -205,63 +205,64 @@ module tt_um_rejunity_atari2600 (
   always @(posedge clk)
     if (~rst_n)
       frame_counter <= 0;
-    else if (tia_vsync_last != tia_vsync && tia_vsync)
-      frame_counter <={((frame_counter[2:1] == 0) ? 2'd1 : 
-                        (frame_counter[2:1] == 1) ? 2'd3 : 
-                        (frame_counter[2:1] == 2) ? 2'd0 :
-                                                    2'd2),
+    else if (tia_vsync_posedge)
+      frame_counter <={((frame_counter[2:1] == 0) ? 2'd1 : // defines horizontal dithering pattern
+                        (frame_counter[2:1] == 1) ? 2'd3 : //             --- // --- 
+                        (frame_counter[2:1] == 2) ? 2'd0 : //             --- // --- 
+                                                    2'd2), //             --- // --- 
                         ~frame_counter[0]};
+  wire onset_scanline = (vga_ypos[  0] == frame_counter[  0]); // each Atari pixel maps to 4x2 VGA pixels, 2 scanlines
+  wire onset_pixel    = (vga_xpos[1:0] == frame_counter[2:1]); //               --- // ---                 4 pixels
 
-  wire [6:0] hue_luma = vga_xpos[9:2] < 160 ? scanline[vga_xpos[9:2]] : 0;
-  wire [3:0] hue = hue_luma[6:3];
-  wire [3:0] luma = {hue_luma[2:0], 1'b0};
+  wire [6:0] hue_luma = vga_xpos[9:2] < 160 ? scanline[vga_xpos[9:2]] : 0; // scanline READ
   wire [23:0] rgb_24bpp;
   palette palette_24bpp (
-      .hue(hue),
-      .lum(luma),
+      .hue( hue_luma[6:3]),
+      .lum({hue_luma[2:0], 1'b0}),
       .rgb_24bpp(rgb_24bpp)
   );
+  wire [7:0] r_8bit = rgb_24bpp[23:16];
+  wire [7:0] g_8bit = rgb_24bpp[15: 8];
+  wire [7:0] b_8bit = rgb_24bpp[ 7: 0];
 
-  // @TEMP:
+  // PWM based dithering, each scanline has a separate set of R, G, B accumulators
+  reg [9:0] r_pwm_odd,  g_pwm_odd,  b_pwm_odd;  // 1st scanline
+  reg [9:0] r_pwm_even, g_pwm_even, b_pwm_even; // 2nd scanline
+
+  always @(posedge clk) begin
+    if (vga_xpos == 0) begin
+      r_pwm_odd  <= 0; g_pwm_odd  <= 0; b_pwm_odd  <= 0;
+      r_pwm_even <= 0; g_pwm_even <= 0; b_pwm_even <= 0;
+    end else begin
+
+      // carry over dithering error horizonatally
+      r_pwm_odd <=  (onset_pixel?0:((r_pwm_odd  & 10'h0FF)>>1)) + (r_8bit * 3);
+      g_pwm_odd <=  (onset_pixel?0:((g_pwm_odd  & 10'h0FF)>>1)) + (g_8bit * 3);
+      b_pwm_odd <=  (onset_pixel?0:((b_pwm_odd  & 10'h0FF)>>1)) + (b_8bit * 3);
+
+      // simulate carry over vertically by keeping accumulators for 2 scanlines
+      r_pwm_even <= (onset_pixel?0:((r_pwm_even & 10'h0FF)>>1)) + (r_8bit * 3) + 
+                   ((onset_pixel?0:((r_pwm_odd  & 10'h0FF)>>1)) + (r_8bit * 3) & 10'h0FF);
+      g_pwm_even <= (onset_pixel?0:((g_pwm_even & 10'h0FF)>>1)) + (g_8bit * 3) +
+                   ((onset_pixel?0:((g_pwm_odd  & 10'h0FF)>>1)) + (g_8bit * 3) & 10'h0FF);
+      b_pwm_even <= (onset_pixel?0:((b_pwm_even & 10'h0FF)>>1)) + (b_8bit * 3) +
+                   ((onset_pixel?0:((b_pwm_odd  & 10'h0FF)>>1)) + (b_8bit * 3) & 10'h0FF);
+
+    end
+  end
+
+  wire [9:0] r_pwm = onset_scanline ? r_pwm_odd: r_pwm_even;
+  wire [9:0] g_pwm = onset_scanline ? g_pwm_odd: g_pwm_even;
+  wire [9:0] b_pwm = onset_scanline ? b_pwm_odd: b_pwm_even;
+
   // assign {R, G, B} = (!video_active || tia_vblank) ? 6'b00_00_00:
   //                                     {rgb_24bpp[23], rgb_24bpp[23-1],
   //                                      rgb_24bpp[15], rgb_24bpp[15-1],
   //                                      rgb_24bpp[ 7], rgb_24bpp[ 7-1]};
   assign {R, G, B} = (!video_active || tia_vblank) ? 6'b00_00_00:
-                                                    {r_pwm[9-:2],
-                                                     g_pwm[9-:2],
-                                                     b_pwm[9-:2]};
-  reg [9:0] r_pwm_odd;
-  reg [9:0] g_pwm_odd;
-  reg [9:0] b_pwm_odd;
-  reg [9:0] r_pwm_even;
-  reg [9:0] g_pwm_even;
-  reg [9:0] b_pwm_even;
-
-  wire [9:0] r_pwm = (vga_ypos[0] == frame_counter[0]) ? r_pwm_odd: r_pwm_even;
-  wire [9:0] g_pwm = (vga_ypos[0] == frame_counter[0]) ? g_pwm_odd: g_pwm_even;
-  wire [9:0] b_pwm = (vga_ypos[0] == frame_counter[0]) ? b_pwm_odd: b_pwm_even;
-
-  always @(posedge clk) begin
-    if (vga_xpos == 0) begin
-      r_pwm_odd <= 0;
-      g_pwm_odd <= 0;
-      b_pwm_odd <= 0;
-      r_pwm_even <= 0;
-      g_pwm_even <= 0;
-      b_pwm_even <= 0;
-    end else begin
-      r_pwm_odd <= (vga_xpos[1:0]==(frame_counter[2:1]+0)?0:((r_pwm_odd & 10'h0FF)>>1)) + (rgb_24bpp[23:16] * 3);
-      g_pwm_odd <= (vga_xpos[1:0]==(frame_counter[2:1]+0)?0:((g_pwm_odd & 10'h0FF)>>1)) + (rgb_24bpp[15: 8] * 3);
-      b_pwm_odd <= (vga_xpos[1:0]==(frame_counter[2:1]+0)?0:((b_pwm_odd & 10'h0FF)>>1)) + (rgb_24bpp[ 7: 0] * 3);
-
-      r_pwm_even <= (vga_xpos[1:0]==(frame_counter[2:1]+0)?0:((r_pwm_even & 10'h0FF)>>1)) + (rgb_24bpp[23:16] * 3) + ((vga_xpos[1:0]==(frame_counter[2:1]+0)?0:((r_pwm_odd & 10'h0FF)>>1)) + (rgb_24bpp[23:16] * 3) & 10'h0FF);
-      g_pwm_even <= (vga_xpos[1:0]==(frame_counter[2:1]+0)?0:((g_pwm_even & 10'h0FF)>>1)) + (rgb_24bpp[15: 8] * 3) + ((vga_xpos[1:0]==(frame_counter[2:1]+0)?0:((g_pwm_odd & 10'h0FF)>>1)) + (rgb_24bpp[15: 8] * 3) & 10'h0FF);
-      b_pwm_even <= (vga_xpos[1:0]==(frame_counter[2:1]+0)?0:((b_pwm_even & 10'h0FF)>>1)) + (rgb_24bpp[ 7: 0] * 3) + ((vga_xpos[1:0]==(frame_counter[2:1]+0)?0:((b_pwm_odd & 10'h0FF)>>1)) + (rgb_24bpp[ 7: 0] * 3) & 10'h0FF);
-
-    end
-  end
-
+                                                     {r_pwm[9-:2],
+                                                      g_pwm[9-:2],
+                                                      b_pwm[9-:2]};
   // -------------------------------------------------------------------------
   reg [7:0] builtin_rom [4095:0];
   initial begin
