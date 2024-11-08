@@ -1,6 +1,6 @@
 ![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
 
-# Computer on a Chip: open source silicon clone of Atari 2600 / VCS
+# Computer on a Chip: FOSS silicon clone of Atari 2600
 
 Goal of this project is to create a **complete computer** on a single chip using only [**Free and Open Source (FOSS)** tools](https://openlane.readthedocs.io) and [Open Source PDK](https://github.com/google/skywater-pdk).
 
