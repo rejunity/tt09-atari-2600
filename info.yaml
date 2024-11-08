@@ -30,13 +30,13 @@ project:
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:
   # Inputs
-  ui[0]: ""
-  ui[1]: ""
+  ui[0]: "Switch RESET"
+  ui[1]: "Joystick FIRE"
   ui[2]: ""
-  ui[3]: ""
-  ui[4]: ""
-  ui[5]: ""
-  ui[6]: ""
+  ui[3]: "Joystick UP"
+  ui[4]: "Joystick DOWN"
+  ui[5]: "Joystick LEFT"
+  ui[6]: "Joystick RIGHT"
   ui[7]: ""
 
   # Outputs
@@ -50,12 +50,12 @@ pinout:
   uo[7]: "HSync"
 
   # Bidirectional pins
-  uio[0]: ""
-  uio[1]: ""
-  uio[2]: ""
-  uio[3]: ""
-  uio[4]: ""
-  uio[5]: ""
+  uio[0]: "QSPI CS"
+  uio[1]: "QSPI SD0"
+  uio[2]: "QSPI SD1"
+  uio[3]: "QSPI SCK"
+  uio[4]: "QSPI SD2"
+  uio[5]: "QSPI SD3"
   uio[6]: ""
   uio[7]: "Audio (PWM)"
 
