@@ -26,6 +26,8 @@ module tt_um_rejunity_atari2600 (
     if (~rst_n)
        use_internal_rom <= ui_in[1];
 
+  // -------------------------------------------------------------------------
+
   wire [11:0] address_bus;
   wire        rom_cycle;
   wire        valid_rom_address_on_bus; // WAS: (cpu_enable && !stall_cpu && rom_cs)
@@ -38,6 +40,8 @@ module tt_um_rejunity_atari2600 (
   wire [8:0] tia_ypos;
   wire       tia_vsync;
   wire       tia_vblank;
+
+  wire system_enable = ~wait_for_vga_sync && ~wait_for_memory;
 
   atari2600 atari2600 (
     .clk(clk),
@@ -66,16 +70,6 @@ module tt_um_rejunity_atari2600 (
   );
 
   // -------------------------------------------------------------------------
-
-  // Audio PWM
-  reg [5:0] audio_pwm_accumulator;
-  always @(posedge clk) begin
-    if (~rst_n)
-      audio_pwm_accumulator <= 0;
-    else
-      audio_pwm_accumulator <= audio_pwm_accumulator[4:0] + tia_audio;
-  end
-  wire audio_pwm = audio_pwm_accumulator[5];
 
   // VGA signals
   wire hsync;
@@ -130,6 +124,15 @@ module tt_um_rejunity_atari2600 (
                                       // adopt NES controller format
 `endif
 
+  // Inputs
+  // TODO: fix a weird mapping in TIA.v / PIA.v
+  // localparam UP = 3, RIGHT = 6, LEFT = 5, DOWN = 4, SELECT = 2, RESET = 0, FIRE = 1;
+  wire [6:0] buttons = {~ui_in[6:1], ui_in[0]};
+
+  // Suppress unused signals warning
+  wire _unused_ok = &{ena, uio_in[7:4]};
+  // -------------------------------------------------------------------------
+
 `ifdef VGA_50MHz
   vga_640x480_50MHz_hvsync_generator hvsync_gen(
 `else
@@ -148,58 +151,31 @@ module tt_um_rejunity_atari2600 (
     .vpos(vga_ypos)
   );
 
-  // Inputs
-  // TODO: fix a weird mapping in TIA.v / PIA.v
-  // localparam UP = 3, RIGHT = 6, LEFT = 5, DOWN = 4, SELECT = 2, RESET = 0, FIRE = 1;
-  wire [6:0] buttons = {~ui_in[6:1], ui_in[0]};
-
-  // Suppress unused signals warning
-  wire _unused_ok = &{ena, uio_in[7:4]};
-  // -------------------------------------------------------------------------
-
-  // Atari 2600 Clocks
-  // Video Color Clock: 3.579545 MHz (NTSC), 3.546894 MHz (PAL)
-  // CPU Machine Clock: 1.193182 MHz (NTSC), 1.182298 MHz (PAL)
+  // Atari 2600 Video Color Clock: 3.579545 MHz (NTSC), 3.546894 MHz (PAL)
+  // Atari      CPU Machine Clock: 1.193182 MHz (NTSC), 1.182298 MHz (PAL)
   // The CPU Clock is derived from Video clock divided by three.
   // One color clock = 1 pixel. One machine clock = 3 pixels.
-  // pixel ~1:7  VGA clock
-  // CPU   ~1:21 VGA clock
 
-  wire system_enable = ~wait_for_vga_sync && ~wait_for_memory;
-
-  // Atari 2600 NTSC is mapped to 640x480@60Hz VGA:
+  // Atari NTSC graphics mode is mapped to 640x480@60Hz VGA:
   //  NTSC: 228 clocks (160 visible pixels) x 262 scanlines (progressive)
   //   VGA: 800 clocks (640 visible pixels) x 525 scanlines
-  //  NTSC scanline is mapped to 2 VGA scanlines
-  //  Each Atari 2600 pixel is mapped to 4x2 VGA pixels
-  
-  // wire wait_for_vga_sync = 0; // @TEMP: while debuging QSPI
-  // wire wait_for_vga_sync = tia_ypos > 20 && (vga_ypos != tia_ypos * 2);
-  // wire wait_for_vga_sync = tia_ypos > 20 && tia_ypos < 250 && (vga_ypos < tia_ypos * 2);
-  // wire wait_for_vga_sync = tia_ypos > 36 && tia_ypos < 230 && (vga_ypos < tia_ypos * 2);
-  wire wait_for_vga_sync = tia_ypos > 36 && (vga_ypos < tia_ypos * 2);
 
+  // Atari pixel clock   ~1:7  VGA clock
+  // Atari CPU   clock   ~1:21 VGA clock
+
+  //  NTSC scanline is mapped to 2 VGA scanlines
+  //  Each Atari pixel is mapped to 4x2 VGA pixels
+  
+  wire wait_for_vga_sync = tia_ypos > 36 && (vga_ypos < tia_ypos * 2);
 
   reg [6:0] scanline [255:0];
   always @(posedge clk) begin
     if (tia_xpos < 160)
-      scanline[tia_xpos] <= tia_video;
+      scanline[tia_xpos] <= tia_video;  // scanline WRITE
   end
 
-`ifdef SIM
-  wire [31:0] vga_pos = (vga_ypos * 800 + vga_xpos);
-  wire [31:0] tia_pos = (tia_ypos * 228 + tia_xpos) * 4 * 2;
-  wire tia_ahead = tia_pos > vga_pos;
-  wire vga_ahead = tia_pos < vga_pos;
-
-  always @(posedge vga_ypos)
-    if (vga_ahead && wait_for_vga_sync)
-      $display("VGA ahead", vga_ypos, "x", vga_xpos, " vs ", tia_ypos, "x", tia_xpos);
-`endif
-
-  reg tia_vsync_last;
-  always @(posedge clk)
-    tia_vsync_last <= tia_vsync;
+  reg tia_vsync_last; always @(posedge clk) tia_vsync_last <= tia_vsync;
+  wire tia_vsync_posedge = (tia_vsync_last != tia_vsync) && tia_vsync;
 
   reg [2:0] frame_counter;
   always @(posedge clk)
@@ -263,6 +239,19 @@ module tt_um_rejunity_atari2600 (
                                                      {r_pwm[9-:2],
                                                       g_pwm[9-:2],
                                                       b_pwm[9-:2]};
+
+  // -------------------------------------------------------------------------
+
+  // Audio PWM
+  reg [5:0] audio_pwm_accumulator;
+  always @(posedge clk) begin
+    if (~rst_n)
+      audio_pwm_accumulator <= 0;
+    else
+      audio_pwm_accumulator <= audio_pwm_accumulator[4:0] + tia_audio;
+  end
+  wire audio_pwm = audio_pwm_accumulator[5];
+
   // -------------------------------------------------------------------------
   reg [7:0] builtin_rom [4095:0];
   initial begin
@@ -368,6 +357,18 @@ module tt_um_rejunity_atari2600 (
   wire        wait_for_memory = rom_cycle && (rom_data_pending > 0);
 `else
   wire        wait_for_memory = 0;
+`endif
+
+// -------------------------------------------------------------------------
+`ifdef SIM
+  wire [31:0] vga_pos = (vga_ypos * 800 + vga_xpos);
+  wire [31:0] tia_pos = (tia_ypos * 228 + tia_xpos) * 4 * 2;
+  wire tia_ahead = tia_pos > vga_pos;
+  wire vga_ahead = tia_pos < vga_pos;
+
+  always @(posedge vga_ypos)
+    if (vga_ahead && wait_for_vga_sync)
+      $display("VGA ahead", vga_ypos, "x", vga_xpos, " vs ", tia_ypos, "x", tia_xpos);
 `endif
 
 endmodule
