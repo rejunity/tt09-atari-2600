@@ -130,8 +130,6 @@ module tt_um_rejunity_atari2600 (
                                       // adopt NES controller format
 `endif
 
-  // Suppress unused signals warning
-  wire _unused_ok = &{ena, uio_in[7:4]};
 `ifdef VGA_50MHz
   vga_640x480_50MHz_hvsync_generator hvsync_gen(
 `else
@@ -155,7 +153,9 @@ module tt_um_rejunity_atari2600 (
   // localparam UP = 3, RIGHT = 6, LEFT = 5, DOWN = 4, SELECT = 2, RESET = 0, FIRE = 1;
   wire [6:0] buttons = {~ui_in[6:1], ui_in[0]};
 
-    // -------------------------------------------------------------------------
+  // Suppress unused signals warning
+  wire _unused_ok = &{ena, uio_in[7:4]};
+  // -------------------------------------------------------------------------
 
   // Atari 2600 Clocks
   // Video Color Clock: 3.579545 MHz (NTSC), 3.546894 MHz (PAL)
