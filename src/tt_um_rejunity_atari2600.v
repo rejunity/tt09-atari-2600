@@ -81,6 +81,7 @@ module tt_um_rejunity_atari2600 (
   wire audio_pwm;
 
   // TinyVGA PMOD
+  // https://github.com/mole99/tiny-vga
 `ifdef VGA_REGISTERED_OUTPUTS
   reg [7:0] UO_OUT;
   always @(posedge clk)
