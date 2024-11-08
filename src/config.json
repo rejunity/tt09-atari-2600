@@ -18,10 +18,10 @@
   
   "//": "PL_TARGET_DENSITY_PCT - You can increase this if Global Placement fails with error GPL-0302.",
   "//": "Users have reported that values up to 80 worked well for them.",
-  "PL_TARGET_DENSITY_PCT": 70,
+  "PL_TARGET_DENSITY_PCT": 61,
 
   "//": "PL_TARGET_DENSITY - Open Lane 1 density setting",
-  "PL_TARGET_DENSITY": 0.7,
+  "PL_TARGET_DENSITY": 0.61,
   "//": "The maximum number of iterations for global router repair_antenna. (Default: 15)",
   "GLB_RT_ANT_ITERS": 1000,
 
@@ -59,8 +59,8 @@
   "//": "Reduce wasted space",
   "TOP_MARGIN_MULT": 1,
   "BOTTOM_MARGIN_MULT": 1,
-  "LEFT_MARGIN_MULT": 6,
-  "RIGHT_MARGIN_MULT": 6,
+  "LEFT_MARGIN_MULT": 4,
+  "RIGHT_MARGIN_MULT": 4,
 
   "//": "Absolute die size",
   "FP_SIZING": "absolute",
@@ -99,7 +99,7 @@
    "rom_2600_0": {
     "instances" : {
      "rom0_I" : {
-       "location": [880, 113.33],
+       "location": [1227, 113.33],
        "orientation": "FN"
      }
     },
@@ -112,14 +112,40 @@
    "rom_2600_1": {
     "instances" : {
      "rom1_I" : {
-       "location": [880,   0.13],
-       "orientation": "S"
+       "location": [907,   0.13],
+       "orientation": "FS"
      }
     },
     "gds": ["dir::../macro/rom_2600_1.gds.gz"],
     "lef": ["dir::../macro/rom_2600_1.lef"],
     "lib": {
         "*": ["dir::../macro/rom_2600_1.lib"]
+    }
+   },
+   "rom_2600_2": {
+    "instances" : {
+     "rom2_I" : {
+       "location": [1067, 0.13],
+       "orientation": "S"
+     }
+    },
+    "gds": ["dir::../macro/rom_2600_2.gds.gz"],
+    "lef": ["dir::../macro/rom_2600_2.lef"],
+    "lib": {
+        "*": ["dir::../macro/rom_2600_2.lib"]
+    }
+   },
+   "rom_2600_3": {
+    "instances" : {
+     "rom3_I" : {
+       "location": [1227,   0.13],
+       "orientation": "S"
+     }
+    },
+    "gds": ["dir::../macro/rom_2600_3.gds.gz"],
+    "lef": ["dir::../macro/rom_2600_3.lef"],
+    "lib": {
+        "*": ["dir::../macro/rom_2600_3.lib"]
     }
    }
   },
@@ -139,6 +165,6 @@
 
   "//": "  Config",
   "FP_PDN_HORIZONTAL_LAYER": "met3",
-  "FP_MACRO_HORIZONTAL_HALO": "6",
+  "FP_MACRO_HORIZONTAL_HALO": "12",
   "FP_MACRO_VERTICAL_HALO": "2"
 }
