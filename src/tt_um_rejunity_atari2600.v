@@ -4,10 +4,11 @@
  */
 
 `default_nettype none
+// `define VGA_50MHz
 // `define VGA_RESYNC_TO_TIA
 // `define VGA_REGISTERED_OUTPUTS
+`define VGA_PWM_DITHERING
 // `define VALIDATE_QSPI_ROM_AGAINST_INTERNAL_ROM
-// `define VGA_50MHz
 `define QSPI_ROM
 
 module tt_um_rejunity_atari2600 (
@@ -71,15 +72,13 @@ module tt_um_rejunity_atari2600 (
 
   // -------------------------------------------------------------------------
 
-  // VGA signals
+  // video & audio signals
   wire hsync;
   wire vsync;
   wire [1:0] R;
   wire [1:0] G;
   wire [1:0] B;
-  wire video_active;
-  wire [9:0] vga_xpos;
-  wire [9:0] vga_ypos;
+  wire audio_pwm;
 
   // TinyVGA PMOD
 `ifdef VGA_REGISTERED_OUTPUTS
@@ -93,25 +92,19 @@ module tt_um_rejunity_atari2600 (
 
   // ROM QSPI + Audio PMODs
   // QSPI PMod: https://github.com/mole99/qspi-pmod
-  //  - PMOD1 uio[0]  CS0         (@TODO: validate this one is Flash)
+  //  - PMOD1 uio[0]  CS0 Flash ROM
   //  - PMOD2 uio[1]  SD0/MOSI
   //  - PMOD3 uio[2]  SD1/MISO
   //  - PMOD4 uio[3]  SCK
   //  - PMOD5 uio[4]  SD2
   //  - PMOD6 uio[5]  SD3
-  //  - PMOD7 uio[6]  CS1
-  //  - PMOD8 uio[7]  CS2
+  //  - PMOD7 uio[6]  CS1 (unused)
+  //  - PMOD8 uio[7]  CS2 (audio)
   // Audio PMOD: https://github.com/MichaelBell/tt-audio-pmod
   //  - PMOD8 uio[7]  PWM Audio
   // 1 bidirectional pin is unused (tia_vsync for diagostics in Verilator)
-  // @TODO: output video_active for DVI instead
-  // @TODO: validate with Digilent SDCard PMOD as well
-  //  - PMOD1 uio[0]  ~CS/DAT3
-  //  - PMOD2 uio[1]  MOSI
-  //  - PMOD3 uio[2]  MISO
-  //  - PMOD4 uio[3]  SCK
-  //  - PMOD5 uio[4]  DAT1
-  //  - PMOD6 uio[5]  DAT2
+  // @TODO: pull CS1 high
+  // @TODO: output video_active for DVI
 `ifdef QSPI_ROM
   assign uio_out = {audio_pwm, tia_vsync, spi_data_out[3:2], spi_clk_out, spi_data_out[1:0], spi_select};
   assign uio_oe  = {     1'b1,      1'b1,  spi_data_oe[3:2],        1'b1,  spi_data_oe[1:0],       1'b1};
@@ -132,6 +125,10 @@ module tt_um_rejunity_atari2600 (
   // Suppress unused signals warning
   wire _unused_ok = &{ena, uio_in[7:4]};
   // -------------------------------------------------------------------------
+
+  wire video_active;
+  wire [9:0] vga_xpos;
+  wire [9:0] vga_ypos;
 
 `ifdef VGA_50MHz
   vga_640x480_50MHz_hvsync_generator hvsync_gen(
@@ -231,14 +228,17 @@ module tt_um_rejunity_atari2600 (
   wire [9:0] g_pwm = onset_scanline ? g_pwm_odd: g_pwm_even;
   wire [9:0] b_pwm = onset_scanline ? b_pwm_odd: b_pwm_even;
 
-  // assign {R, G, B} = (!video_active || tia_vblank) ? 6'b00_00_00:
-  //                                     {rgb_24bpp[23], rgb_24bpp[23-1],
-  //                                      rgb_24bpp[15], rgb_24bpp[15-1],
-  //                                      rgb_24bpp[ 7], rgb_24bpp[ 7-1]};
+`ifdef VGA_PWM_DITHERING
   assign {R, G, B} = (!video_active || tia_vblank) ? 6'b00_00_00:
                                                      {r_pwm[9-:2],
                                                       g_pwm[9-:2],
                                                       b_pwm[9-:2]};
+`else
+  assign {R, G, B} = (!video_active || tia_vblank) ? 6'b00_00_00:
+                                                     {r_8bit[7-:2],
+                                                      g_8bit[7-:2],
+                                                      b_8bit[7-:2]};
+`endif
 
   // -------------------------------------------------------------------------
 
@@ -250,7 +250,7 @@ module tt_um_rejunity_atari2600 (
     else
       audio_pwm_accumulator <= audio_pwm_accumulator[4:0] + tia_audio;
   end
-  wire audio_pwm = audio_pwm_accumulator[5];
+  assign audio_pwm = audio_pwm_accumulator[5];
 
   // -------------------------------------------------------------------------
   reg [7:0] builtin_rom [4095:0];
