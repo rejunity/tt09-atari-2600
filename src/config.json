@@ -36,6 +36,8 @@
   "//": "RUN_LINTER, LINTER_INCLUDE_PDK_MODELS - Disabling the linter is not recommended!",
   "RUN_LINTER": 1,
   "LINTER_INCLUDE_PDK_MODELS": 1,
+  "QUIT_ON_SYNTH_CHECKS": 0,
+  "QUIT_ON_VERILATOR_ERRORS": 0,
 
   "//": "If you need a custom clock configuration, read the following documentation first:",
   "//": "https://tinytapeout.com/faq/#how-can-i-map-an-additional-external-clock-to-one-of-the-gpios",
@@ -90,5 +92,53 @@
   "MAGIC_DEF_LABELS": 0,
 
   "//": "Only export pin area in LEF (without any connected nets)",
-  "MAGIC_WRITE_LEF_PINONLY": 1
+  "MAGIC_WRITE_LEF_PINONLY": 1,
+
+  "//": "Macro",
+  "MACROS": {
+   "rom_2600_0": {
+    "instances" : {
+     "rom0_I" : {
+       "location": [880, 113.33],
+       "orientation": "FN"
+     }
+    },
+    "gds": ["dir::../macro/rom_2600_0.gds.gz"],
+    "lef": ["dir::../macro/rom_2600_0.lef"],
+    "lib": {
+        "*": ["dir::../macro/rom_2600_0.lib"]
+    }
+   },
+   "rom_2600_1": {
+    "instances" : {
+     "rom1_I" : {
+       "location": [880,   0.13],
+       "orientation": "S"
+     }
+    },
+    "gds": ["dir::../macro/rom_2600_1.gds.gz"],
+    "lef": ["dir::../macro/rom_2600_1.lef"],
+    "lib": {
+        "*": ["dir::../macro/rom_2600_1.lib"]
+    }
+   }
+  },
+
+  "//": "Macro power",
+  "//": "  Disable IR Drop report, useless anyway",
+  "RUN_IRDROP_REPORT":0,
+
+  "//": "  Have magic consider nets of same name to be connected since our power pads are not all internally connected",
+  "MAGIC_NO_EXT_UNIQUE":1,
+
+  "//": "  All met4 stripes are not connected internally, this causes PDN to crap out ...",
+  "ERROR_ON_PDN_VIOLATIONS":0,
+
+  "//": "  Full custom PDN config",
+  "FP_PDN_CFG": "dir::pdn_cfg.tcl",
+
+  "//": "  Config",
+  "FP_PDN_HORIZONTAL_LAYER": "met3",
+  "FP_MACRO_HORIZONTAL_HALO": "6",
+  "FP_MACRO_VERTICAL_HALO": "2"
 }
