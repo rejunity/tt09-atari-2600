@@ -7,10 +7,10 @@ Goal of this project is to create a **complete computer** on a single chip using
 Atari 2600 fits this goal perfectly thanks to it is minimal hardware design (i.e. only 128 bytes of RAM) while sporting a large software library!
 
 <p align="center" width="100%">
-    <img width="20%" src="./docs/RiverRaid.png">
-    <img width="20%" src="./docs/Pitfall.png">
-    <img width="10%" src="./docs/temporal_dithering.gif">
-    <img width="20%" src="./docs/iCEBreaker.png">
+    <img width="25%" src="./docs/RiverRaid.png">
+    <img width="25%" src="./docs/Pitfall.png">
+    <img width="12%" src="./docs/temporal_dithering.gif">
+    <img width="25%" src="./docs/iCEBreaker.png">
 </p>
 
 ## Implementation overview
