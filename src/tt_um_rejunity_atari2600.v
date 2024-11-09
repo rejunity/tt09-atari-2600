@@ -189,19 +189,19 @@ module tt_um_rejunity_atari2600 (
   wire onset_scanline = (vga_ypos[  0] == frame_counter[  0]); // each Atari pixel maps to 4x2 VGA pixels, 2 scanlines
   wire onset_pixel    = (vga_xpos[1:0] == frame_counter[2:1]); //               --- // ---                 4 pixels
 
-  // wire scanline_write_enable = ~wait_for_scanline_read_slot;
-  // wire [7:0] scanline_address = scanline_write_enable ? (tia_xpos < 160 ? tia_xpos : 0) : (vga_xpos[9:2] < 160 ? vga_xpos[9:2] : 0);
+  wire scanline_write_enable = ~wait_for_scanline_read_slot;
+  wire [7:0] scanline_address = scanline_write_enable ? (tia_xpos < 160 ? tia_xpos : 0) : (vga_xpos[9:2] < 160 ? vga_xpos[9:2] : 0);
   reg [6:0] hue_luma;
   always @(posedge clk) begin
-    if (wait_for_scanline_read_slot)
-      hue_luma <= scanline[vga_xpos[9:2]];            // scanline READ
-    else if (tia_xpos < 160)
-        scanline[tia_xpos] <= tia_video;              // scanline WRITE
+    // if (wait_for_scanline_read_slot)
+    //   hue_luma <= scanline[vga_xpos[9:2]];            // scanline READ
+    // else if (tia_xpos < 160)
+    //     scanline[tia_xpos] <= tia_video;              // scanline WRITE
 
-    // if (scanline_write_enable)
-    //   scanline[scanline_address] <= tia_video;
-    // else
-    //   hue_luma <= scanline[scanline_address];
+    if (scanline_write_enable)
+      scanline[scanline_address] <= tia_video;
+    else
+      hue_luma <= scanline[scanline_address];
   end
 
   //wire [6:0] hue_luma = vga_xpos[9:2] < 160 ? scanline[vga_xpos[9:2]] : 0; // scanline READ
