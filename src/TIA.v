@@ -388,7 +388,7 @@ module tia #(
 
         // Draw pixel
         if ( ypos >= start && xpos < 160) begin // Don't draw in blank area
-          if (ypos >= hblank_area)
+          // if (ypos >= hblank_area)
             vid_out <=
                bl_bit ? colupf :
                m0_bit ? colup0 :
@@ -397,7 +397,7 @@ module tia #(
                p0_bit ? colup0 :
                p1_bit ? colup1 :
                pf_bit ? pf_color : colubk;
-          else vid_out <= 8'b0;
+          // else vid_out <= 8'b0;
 
           vid_wr <= 1;
         end
