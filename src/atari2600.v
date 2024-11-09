@@ -151,8 +151,6 @@ module atari2600 (
 
   reg [7:0] ram [ 127:0]; // Built-in RAM (part of PIA/RIOT chip): 128 bytes
   reg [7:0] ram_data;     // registering this makes yosys iCE40 BRAM inference happy
-  always @(posedge clk)
-    ram_data <= ram[address_bus[6:0]]; 
 
   // ===============================================================
   // Memory Map
@@ -185,6 +183,7 @@ module atari2600 (
   always @(posedge clk) begin
     // CPU writes
     if (cpu_enable && write_enable && ram_cs) ram[address_bus[6:0]] <= data_out;
+    if (~write_enable)                        ram_data <= ram[address_bus[6:0]];
 
     // CPU reads
     if (ram_cs) data_in <= ram_data;
