@@ -129,7 +129,7 @@ module atari2600 (
     .vid_ypos(ypos),
     .vid_vblank(vblank),
     .vid_vsync(vsync),
-    .vid_wr(video_write),
+    .vid_wr(vwrite),
     .pal(1'b0)  // currently only NSTC is supported
   );
 
