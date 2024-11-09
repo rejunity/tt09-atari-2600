@@ -28,6 +28,7 @@ module atari2600 (
   output wire  [8:0]  ypos,
   output wire         vsync,
   output wire         vblank,
+  output wire         vwrite,
 
   output wire  [4:0]  audio
 );
@@ -106,7 +107,6 @@ module atari2600 (
   wire [7:0] tia_data_in = data_out;
   reg  [7:0] tia_data_out;
   reg  [6:0] tia_video_out;
-  reg        tia_wr;
   wire [8:0] tia_ypos;  // used to syncronize VGA & TIA frames
 
   tia tia (
@@ -129,7 +129,7 @@ module atari2600 (
     .vid_ypos(ypos),
     .vid_vblank(vblank),
     .vid_vsync(vsync),
-    .vid_wr(tia_wr),
+    .vid_wr(video_write),
     .pal(1'b0)  // currently only NSTC is supported
   );
 

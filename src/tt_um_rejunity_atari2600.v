@@ -41,6 +41,7 @@ module tt_um_rejunity_atari2600 (
   wire [8:0] tia_ypos;
   wire       tia_vsync;
   wire       tia_vblank;
+  wire       tia_write;
 
   wire system_enable = ~wait_for_vga_sync && ~wait_for_scanline_read_slot && ~wait_for_memory;
 
@@ -67,6 +68,7 @@ module tt_um_rejunity_atari2600 (
     .ypos(tia_ypos),
     .vsync(tia_vsync),
     .vblank(tia_vblank),
+    .vwrite(tia_write),
     .audio(tia_audio)
   );
 
@@ -167,12 +169,6 @@ module tt_um_rejunity_atari2600 (
   wire wait_for_vga_sync = tia_ypos > 36 && (vga_ypos < tia_ypos * 2);
   wire wait_for_scanline_read_slot = vga_xpos[1:0] == 0 && vga_xpos[9:2] < 160;
 
-  reg [6:0] scanline [255:0];
-  // always @(posedge clk) begin
-  //   if (tia_xpos < 160)
-  //     scanline[tia_xpos] <= tia_video;  // scanline WRITE
-  // end
-
   reg tia_vsync_last; always @(posedge clk) tia_vsync_last <= tia_vsync;
   wire tia_vsync_posedge = (tia_vsync_last != tia_vsync) && tia_vsync;
 
@@ -189,22 +185,29 @@ module tt_um_rejunity_atari2600 (
   wire onset_scanline = (vga_ypos[  0] == frame_counter[  0]); // each Atari pixel maps to 4x2 VGA pixels, 2 scanlines
   wire onset_pixel    = (vga_xpos[1:0] == frame_counter[2:1]); //               --- // ---                 4 pixels
 
-  wire scanline_write_enable = ~wait_for_scanline_read_slot;
-  wire [7:0] scanline_address = scanline_write_enable ? (tia_xpos < 160 ? tia_xpos : 0) : (vga_xpos[9:2] < 160 ? vga_xpos[9:2] : 0);
-  reg [6:0] hue_luma;
-  always @(posedge clk) begin
-    // if (wait_for_scanline_read_slot)
-    //   hue_luma <= scanline[vga_xpos[9:2]];            // scanline READ
-    // else if (tia_xpos < 160)
-    //     scanline[tia_xpos] <= tia_video;              // scanline WRITE
+  // wire [15:0] scaneline_write_address = (tia_xpos + scanline_offset) < 160 ? (tia_xpos + scanline_offset) : (tia_xpos + scanline_offset - 160);
+  wire [7:0] scaneline_write_address = (tia_xpos + 160 - scanline_offset) < 160 ? (tia_xpos + 160 - scanline_offset) : (tia_xpos - scanline_offset);
+  wire [10:0] scaneline_write_address_mul7 = {scaneline_write_address, 3'b000} - scaneline_write_address;
 
-    if (scanline_write_enable)
-      scanline[scanline_address] <= tia_video;
-    else
-      hue_luma <= scanline[scanline_address];
+  reg [1120-1:0] scanline;
+  reg [7:0] scanline_offset;
+
+  always @(posedge clk) begin
+    if (~rst_n)
+      scanline_offset <= 0;
+    else if (wait_for_scanline_read_slot) begin // (vga_xpos[9:2] < 160 && vga_xpos[1:0] == 0) begin
+      scanline <= {scanline[6:0], scanline[1120-1:7]};
+      hue_luma <= scanline[6:0];
+      scanline_offset <= scanline_offset + 1;
+      if (scanline_offset == 159)
+        scanline_offset <= 0;
+    end else if (tia_write) begin
+      scanline[scaneline_write_address_mul7 +: 7] <= tia_video;  // scanline WRITE
+    end
   end
 
-  //wire [6:0] hue_luma = vga_xpos[9:2] < 160 ? scanline[vga_xpos[9:2]] : 0; // scanline READ
+  // wire [6:0] hue_luma = scanline[6:0];
+  reg [6:0] hue_luma;
   wire [23:0] rgb_24bpp;
   palette palette_24bpp (
       .hue( hue_luma[6:3]),
