@@ -12,6 +12,21 @@ Atari 2600 fits this goal perfectly thanks to it is minimal hardware design (i.e
     <img width="30%" src="./docs/StarWars.png">
 </p>
 
+## ASIC Fabrication
+
+The design is so small that around **40** Atari consoles fit on a silicon die! The silicon area of this design is 0.2 mm2 (1000um x 216um) on a SkyWater 130 nm node.
+
+Explore chip in [3D directly in the browser](https://gds-viewer.tinytapeout.com/?model=https://rejunity.github.io/tt09-atari-2600/tinytapeout.gds.gltf)!
+
+This design is submitted for fabrication with [Tiny Tapeout 09](https://tinytapeout.com) via eFabless [CI 2411 Shuttle](https://platform.efabless.com/shuttles/CI%202411). Check status here: https://app.tinytapeout.com/projects/1343
+
+Below are integrated circuit layout and metal2/metal3 layer connectivity between the logic gates. The layout was made with automatic place-and-route flow of [OpenROAD](https://openroad.readthedocs.io/en) using open-source [130 nm SkyWater PDK](https://skywater-pdk.readthedocs.io/en/main/).
+
+<p align="center" width="100%">
+    <img width="80%" src="./docs/gds_commit_687474.png">
+    <img width="80%" src="./docs/gds_metal23_commit_687474.png">
+</p>
+
 ## Implementation overview
 
 This design is based on Lawrie Griffiths' [FPGA implementation of the Atari 2600 written in Verilog](https://github.com/lawrie/ulx3s_atari_2600) with the following modifications:
