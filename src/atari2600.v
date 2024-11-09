@@ -183,10 +183,11 @@ module atari2600 (
   always @(posedge clk) begin
     // CPU writes
     if (cpu_enable && write_enable && ram_cs) ram[address_bus[6:0]] <= data_out;
-    if (~write_enable)                        ram_data <= ram[address_bus[6:0]];
+    // if (~write_enable)                        ram_data <= ram[address_bus[6:0]];
 
     // CPU reads
-    if (ram_cs) data_in <= ram_data;
+    if (~write_enable)
+      if (ram_cs) data_in <= ram[address_bus[6:0]];
     if (rom_cs) data_in <= rom_data;
     if (tia_cs) data_in <= tia_data_out;
     if (pia_cs) data_in <= pia_data_out;
