@@ -103,7 +103,9 @@ power_on:
             current_hsync_length++;
     }
 
+
     // main loop
+    bool pause = 0, p_pressed = 0;
     int screenbuffer_write_index = 0;
     int clock_per_pixel = (average_hsync_length > 800) ? 2 : 1;
     while (1) {
@@ -116,8 +118,10 @@ power_on:
         }
 
         // update events and window once per VSYNC (or on overflow)
+
         const bool vsync_just_started = (top->vsync && screenbuffer_write_index > 0);
         if (vsync_just_started || screenbuffer_write_index > TOTAL_RES) {
+pause_loop:
             // check for quit event
             SDL_Event e;
             if (SDL_PollEvent(&e)) {
@@ -128,6 +132,11 @@ power_on:
             if (keyb_state[SDL_SCANCODE_Q]) break;          // quit  if 'Q' was pressed
             if (keyb_state[SDL_SCANCODE_R]) goto power_on;  // reset if 'R' was pressed
 
+            if (keyb_state[SDL_SCANCODE_P] && !p_pressed)   // pause if 'P' was pressed
+                pause = !pause;
+            p_pressed = keyb_state[SDL_SCANCODE_P];
+            if (pause)
+                goto pause_loop;
 
             top->btn_fire   = keyb_state[SDL_SCANCODE_SPACE];
             top->btn_up     = keyb_state[SDL_SCANCODE_UP];
