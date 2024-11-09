@@ -7,10 +7,9 @@ Goal of this project is to create a **complete computer** on a single chip using
 Atari 2600 fits this goal perfectly thanks to it is minimal hardware design (i.e. only 128 bytes of RAM) while sporting a large software library!
 
 <p align="center" width="100%">
-    <img width="25%" src="./docs/RiverRaid.png">
-    <img width="25%" src="./docs/Pitfall.png">
-    <img width="12%" src="./docs/temporal_dithering.gif">
-    <img width="25%" src="./docs/iCEBreaker.png">
+    <img width="30%" src="./docs/RiverRaid.png">
+    <img width="30%" src="./docs/Pitfall.png">
+    <img width="30%" src="./docs/StarWars.png">
 </p>
 
 ## Implementation overview
@@ -27,6 +26,13 @@ This design is based on Lawrie Griffiths' [FPGA implementation of the Atari 2600
 Modifications to Arlet's 6502 core:
 - reset cycle bug fixes such as writes enabled while address bus is still in undefined state
 - reset cycle explicit register initialisation because unlike FPGAs real silicon can not just set default values
+
+
+<p align="center" width="100%">
+    <img width="26%" src="./docs/temporal_dithering.gif">
+    <img width="50%" src="./docs/iCEBreaker.png">
+</p>
+
 
 ## Brief overview of the Atari 2600
 The [Atari 2600](https://www.atariage.com/2600/), also known as the Atari VCS, is a second-generation home video game console released in September 1977. The system is built around three chips:
