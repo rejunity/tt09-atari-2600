@@ -32,15 +32,15 @@ Below are integrated circuit layout and metal2/metal3 layer connectivity between
 This design is based on Lawrie Griffiths' [FPGA implementation of the Atari 2600 written in Verilog](https://github.com/lawrie/ulx3s_atari_2600) with the following modifications:
 - Arlet Ottens' [6502](https://github.com/Arlet/verilog-6502) version of the CPU core
 - a single clock domain for all components
-- scanline doubler to convert NTSC 15 kHz to 30 kHz VGA video signal on the fly without introducing a framebuffer
-- dithering to approximate 128 colors over the 6 bit-per-pixel [TinyVGA PMOD](https://github.com/mole99/tiny-vga)
-- QSPI to access cartridge ROMs stored on external Flash
+- scanline doubler to convert NTSC 15 kHz video signal to 30 kHz VGA without a framebuffer
+- dithering to approximate 128 colors for 6 bit-per-pixel [TinyVGA PMOD](https://github.com/mole99/tiny-vga)
+- QSPI to access external cartridge ROMs
 - fixes to TIA and PIA (I/O & Timer part of the RIOT) chips
-- only NTSC is supported
 
-Modifications to Arlet's 6502 core:
-- reset cycle bug fixes such as writes enabled while address bus is still in undefined state
-- reset cycle explicit register initialisation because unlike FPGAs real silicon can not just set default values
+[Fixes](https://github.com/rejunity/tt09-atari-2600/commits/main/src/6502.v) to Arlet's 6502 core:
+- write enable must be LOW during the RESET cycle because address bus is in undefined at that point
+- D flag must be set after RESET
+- explicit register initialisation, unlike in FPGAs ASIC registers can not have default values
 
 
 <p align="center" width="100%">
@@ -48,10 +48,10 @@ Modifications to Arlet's 6502 core:
     <img width="50%" src="./docs/iCEBreaker.png">
 </p>
 
-
+https://en.wikipedia.org/wiki/MOS_Technology_6507
 ## Brief overview of the Atari 2600
 The [Atari 2600](https://www.atariage.com/2600/), also known as the Atari VCS, is a second-generation home video game console released in September 1977. The system is built around three chips:
-1) Main CPU: [MOS Technology 6502](https://en.wikipedia.org/wiki/MOS_Technology_6502) microprocessor, clocked at 1.193182 MHz.
+1) Main CPU: [MOS Technology 6507](https://en.wikipedia.org/wiki/MOS_Technology_6507) microprocessor from a [6502] family, but with reduced address bus, clocked at 1.193182 MHz.
 2) Video & Audio Processor (TIA): [The Television Interface Adapter (TIA)](https://en.wikipedia.org/wiki/Television_Interface_Adaptor) clocked three times faster than the CPU at 3.579545 MHz. It generates NTSC video output and provides two audio channels.
 3) RAM, I/O, and Timer (RIOT): [MOS Technology 6532](https://en.wikipedia.org/wiki/MOS_Technology_6532), also known as the RIOT chip, integrates 128 bytes of RAM, input/output capabilities, and a timer within a single package.
 
