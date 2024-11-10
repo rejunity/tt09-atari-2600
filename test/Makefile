@@ -39,7 +39,13 @@ VERILOG_SOURCES += $(PWD)/qspi_rom_emu.v
 TOPLEVEL = tb
 
 # MODULE is the basename of the Python test file
-MODULE = test
+ifneq ($(GATES),yes)
+MODULE ?= test
+else
+# zealot.py is a recorded value file from a SIM run
+# useful to compare SIM and GATES results in a more automated way
+MODULE ?= zealot
+endif
 
 # include cocotb's make rules to take care of the simulator setup
 include $(shell cocotb-config --makefiles)/Makefile.sim
