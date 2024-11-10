@@ -12,6 +12,7 @@
 
 // `define VGA_50MHz
 // `define QSPI_ROM_EMU
+`define NO_MACRO_ROMS
 `define QSPI_ROM
 
 module vga_pll(
