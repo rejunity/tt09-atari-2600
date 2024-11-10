@@ -205,9 +205,9 @@ module tt_um_rejunity_atari2600 (
 `elsif ICE40
   assign reg_buf = register[1120-1:0];
 `elsif SCL_sky130_fd_sc_hd
-  sky130_fd_sc_hd__clkbuf_2 i_scanline_buf[1120-1:1] ( .X(scanline_buf), .A(scanline[1120-1:0]) );
+  sky130_fd_sc_hd__clkbuf_2 i_scanline_buf[1120-1:0] ( .X(scanline_buf), .A(scanline[1120-1:0]) );
 `elsif SCL_sky130_fd_sc_hs
-  sky130_fd_sc_hs__clkbuf_2 i_scanline_buf[1120-1:1] ( .X(scanline_buf), .A(scanline[1120-1:0]) );
+  sky130_fd_sc_hs__clkbuf_2 i_scanline_buf[1120-1:0] ( .X(scanline_buf), .A(scanline[1120-1:0]) );
 `else
   assign scanline_buf = scanline[1120-1:0];   // On SG13G2 no buffer is required, use direct assignment
 `endif
