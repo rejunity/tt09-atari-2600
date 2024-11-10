@@ -189,15 +189,38 @@ module tt_um_rejunity_atari2600 (
   wire [7:0] scaneline_write_address = (tia_xpos + 160 - scanline_offset) < 160 ? (tia_xpos + 160 - scanline_offset) : (tia_xpos - scanline_offset);
   wire [10:0] scaneline_write_address_mul7 = {scaneline_write_address, 3'b000} - scaneline_write_address;
 
-  reg [1120-1:0] scanline;
+  // reg [WIDTH-1:0] register;
+  // wire [WIDTH-1:1] reg_buf;
+  // always @(posedge clk) register <= {reg_buf, data_in};
+  // assign data_out = register;
+
+  reg  [1120-1:0] scanline;
+  wire [1120-1:0] scanline_buf;
   reg [7:0] scanline_offset;
+
+`ifdef SIM
+  /* verilator lint_off ASSIGNDLY */
+  buf i_scanline_buf[1120-1:0] (scanline_buf, scanline[1120-1:0]);
+  /* verilator lint_on ASSIGNDLY */
+`elsif ICE40
+  assign reg_buf = register[1120-1:0];
+`elsif SCL_sky130_fd_sc_hd
+  sky130_fd_sc_hd__clkbuf_2 i_scanline_buf[1120-1:1] ( .X(scanline_buf), .A(scanline[1120-1:0]) );
+`elsif SCL_sky130_fd_sc_hs
+  sky130_fd_sc_hs__clkbuf_2 i_scanline_buf[1120-1:1] ( .X(scanline_buf), .A(scanline[1120-1:0]) );
+`else
+  assign scanline_buf = scanline[1120-1:0];   // On SG13G2 no buffer is required, use direct assignment
+`endif
+
 
   always @(posedge clk) begin
     if (~rst_n)
       scanline_offset <= 0;
     else if (wait_for_scanline_read_slot) begin // (vga_xpos[9:2] < 160 && vga_xpos[1:0] == 0) begin
-      scanline <= {scanline[6:0], scanline[1120-1:7]};
-      hue_luma <= scanline[6:0];
+      // scanline <= {scanline[6:0], scanline[1120-1:7]};
+      // hue_luma <= scanline[6:0];
+      scanline <= {scanline_buf[6:0], scanline_buf[1120-1:7]};
+      hue_luma <= scanline_buf[6:0];
       scanline_offset <= scanline_offset + 1;
       if (scanline_offset == 159)
         scanline_offset <= 0;
