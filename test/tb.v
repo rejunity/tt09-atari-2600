@@ -237,7 +237,9 @@ module tb ();
                      user_project.\flash_rom.addr[2] ,
                      user_project.\flash_rom.addr[1] ,
                      user_project.\flash_rom.addr[0] };
+`else 
 
+  wire [15:0] PC = user_project.atari2600.cpu.PC;
 `endif
 
   qspi_rom_emu qspi_rom_emu(
