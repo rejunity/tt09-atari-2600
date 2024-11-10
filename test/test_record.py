@@ -85,9 +85,9 @@ async def record_project(dut):
 
     cycles_per_step = 16
     # for cycle in range((800)//cycles_per_step):
-    for cycle in range((800*40)//cycles_per_step):
+    # for cycle in range((800*40)//cycles_per_step):
     # for cycle in range((800*64)//cycles_per_step):
-    # for cycle in range((800*525*2)//cycles_per_step):
+    for cycle in range((800*525*2)//cycles_per_step):
     # for cycle in range((800*525*3)//cycles_per_step):
         await ClockCycles(dut.clk, cycles_per_step)
         append_to_file(RECORDED_TEST_FILENAME, f"await ClockCycles(dut.clk, {cycles_per_step})")
