@@ -144,8 +144,8 @@ module tt_um_rejunity_atari2600 (
 
   always @(posedge clk) begin
     if (~rst_n) begin
-      joystick_0 <= {5'b11111, 1'b0};
-      joystick_1 <= {5'b11111, 1'b0};
+      joystick_0 <= {6'b111111, 1'b0};
+      joystick_1 <= {6'b111111, 1'b0};
       switches   <=  5'b11111;
     end else begin
       if (ui_in[6])
