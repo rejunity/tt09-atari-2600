@@ -39,17 +39,27 @@ async def validate(dut):
 
 def append_to_file(filename, value):
     line_to_append = f"    {value}\n"
-    with open("zealot.py", "a") as file:
+    with open(filename, "a") as file:
         file.write(line_to_append)
 
-def append_assert_to_file(filename, value):
-    line_to_append = f"    assert(dut.uo_out.value == 0b{value})\n"    
-    with open("zealot.py", "a") as file:
-        file.write(line_to_append)
+def append_assert_to_file(filename, dut, value_name, gl_value_name=False, type="b"):
+    if eval(f"{value_name}.value.is_resolvable"):
+        if not gl_value_name:
+            gl_value_name = value_name
+        if type == "h" or type == "hex":
+            value = eval(f"{value_name}.value.integer")
+            line_to_append = f"    assert({gl_value_name}.value.integer == {hex(value)})\n"
+        else:
+            value = eval(f"{value_name}.value.binstr")
+            line_to_append = f"    assert({gl_value_name}.value == 0b{value})\n"
+        with open(filename, "a") as file:
+            file.write(line_to_append)
+
+RECORDED_TEST_FILENAME = "zealot.py"
 
 @cocotb.test()
 async def record_project(dut):
-    create_and_write_header("zealot.py")
+    create_and_write_header(RECORDED_TEST_FILENAME)
 
     dut._log.info("Start")
 
@@ -73,8 +83,14 @@ async def record_project(dut):
 
     dut._log.info("Record")
 
-    for cycle in range(400):
-        await ClockCycles(dut.clk, 16)
-        append_to_file("zealot.py", "await ClockCycles(dut.clk, 16)")
-        if dut.uo_out.value.is_resolvable:
-            append_assert_to_file("zealot.py", dut.uo_out.value.binstr)
+    cycles_per_step = 16
+    # for cycle in range((800)//cycles_per_step):
+    for cycle in range((800*40)//cycles_per_step):
+    # for cycle in range((800*64)//cycles_per_step):
+    # for cycle in range((800*525*2)//cycles_per_step):
+    # for cycle in range((800*525*3)//cycles_per_step):
+        await ClockCycles(dut.clk, cycles_per_step)
+        append_to_file(RECORDED_TEST_FILENAME, f"await ClockCycles(dut.clk, {cycles_per_step})")
+        append_assert_to_file(RECORDED_TEST_FILENAME, dut, "dut.uo_out")
+        append_assert_to_file(RECORDED_TEST_FILENAME, dut, "dut.user_project.atari2600.cpu.PC", "dut.PC", "hex")
+        # print (hex())
