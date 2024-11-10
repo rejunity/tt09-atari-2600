@@ -4,6 +4,7 @@
  */
 
 `default_nettype none
+// `define BUILTIN_ROM
 // `define VGA_50MHz
 // `define VGA_RESYNC_TO_TIA
 // `define VGA_REGISTERED_OUTPUTS
@@ -289,13 +290,17 @@ module tt_um_rejunity_atari2600 (
 
   // -------------------------------------------------------------------------
   reg [7:0] builtin_rom [4095:0];
+`ifdef BUILTIN_ROM
   initial begin
     $readmemh("../roms/rom_builtin.mem", builtin_rom, 0, 4095);
     // DEBUG: override reset vector
     // rom[12'hFFD] <= 8'hF0; rom[12'hFFC] <= 8'h00;
   end
-
   wire use_internal_rom = rom_config[4]; // maps to FIRE button
+`else
+  wire use_internal_rom = 0;
+`endif
+
   wire [7:0] rom_data = use_internal_rom ? internal_rom_data : external_rom_data;
   reg [7:0] internal_rom_data;
   reg [7:0] external_rom_data;
