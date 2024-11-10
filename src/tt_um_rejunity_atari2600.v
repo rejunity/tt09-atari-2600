@@ -372,8 +372,8 @@ module tt_um_rejunity_atari2600 (
 
 `ifdef QSPI_ROM
   reg spi_restart;
-  wire [23:0] spi_address = {4'b0001, rom_config[7:0], address_bus[11:0]}; // iceprog -o1024k
-  // wire [23:0] spi_address = address_bus[11:0] + 24'h10_00_00; // iceprog -o1024k
+  // wire [23:0] spi_address = {4'b0001, rom_config[7:0], address_bus[11:0]}; // iceprog -o1024k
+  wire [23:0] spi_address = {rom_config[7:5], 1'b1, rom_config[3:0], 4'b0000, address_bus[11:0]}; // iceprog -o1024k
   wire        need_new_rom_data = valid_rom_address_on_bus      && (rom_data_pending == 0) && !rom_addr_in_cache;
   wire        spi_start_read = !spi_busy && (need_new_rom_data || spi_restart);
   wire        spi_stop_read =   spi_busy && need_new_rom_data;
