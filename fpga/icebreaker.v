@@ -5,6 +5,7 @@
 // Also see: https://projectf.io/posts/fpga-graphics/
 
 `default_nettype none
+`define FPGA
 `define VGA_6BPP
 // `define VGA_12BPP
 // `define DVI

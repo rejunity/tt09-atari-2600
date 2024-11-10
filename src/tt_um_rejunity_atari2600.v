@@ -311,6 +311,27 @@ module tt_um_rejunity_atari2600 (
   reg  [7:0] rom2_data_r;
   reg  [7:0] rom3_data_r;
 
+`ifdef SIM
+  always @(*)
+   casez ({use_internal_rom, rom_config[3:1]})
+     4'b0zzz: rom_data = external_rom_data;
+     4'b10zz: rom_data = internal_rom_data;
+     4'b1100: rom_data = internal_rom_data;
+     4'b1101: rom_data = internal_rom_data;
+     4'b1110: rom_data = internal_rom_data;
+     4'b1111: rom_data = internal_rom_data;
+   endcase
+`elsif FPGA
+  always @(*)
+   casez ({use_internal_rom, rom_config[3:1]})
+     4'b0zzz: rom_data = external_rom_data;
+     4'b10zz: rom_data = internal_rom_data;
+     4'b1100: rom_data = internal_rom_data;
+     4'b1101: rom_data = internal_rom_data;
+     4'b1110: rom_data = internal_rom_data;
+     4'b1111: rom_data = internal_rom_data;
+   endcase
+`else 
   rom_2600_0 rom0_I (
     .addr (romx_addr),
     .q    (rom0_data)
@@ -339,8 +360,6 @@ module tt_um_rejunity_atari2600 (
     rom2_data_r <= rom2_data;
     rom3_data_r <= rom3_data;
   end
-
-
   always @(*)
    casez ({use_internal_rom, rom_config[3:1]})
      4'b0zzz: rom_data = external_rom_data;
@@ -350,6 +369,7 @@ module tt_um_rejunity_atari2600 (
      4'b1110: rom_data = rom2_data_r;
      4'b1111: rom_data = rom3_data_r;
    endcase
+`endif
 
   always @(posedge clk) begin
   `ifdef VALIDATE_QSPI_ROM_AGAINST_INTERNAL_ROM
