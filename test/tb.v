@@ -5,6 +5,51 @@
    that can be driven / tested by the cocotb test.py.
 */
 
+
+module rom_2600_0 (
+`ifdef GL_TEST
+  input wire VPWR,
+  input wire VGND,
+`endif
+  input  wire [11:0] addr,
+  output wire [ 7:0] q
+);
+  assign q = {8{&addr}};
+endmodule
+
+module rom_2600_1 (
+`ifdef GL_TEST
+  input wire VPWR,
+  input wire VGND,
+`endif
+  input  wire [11:0] addr,
+  output wire [ 7:0] q
+);
+  assign q = {8{&addr}};
+endmodule
+
+module rom_2600_2 (
+`ifdef GL_TEST
+  input wire VPWR,
+  input wire VGND,
+`endif
+  input  wire [11:0] addr,
+  output wire [ 7:0] q
+);
+  assign q = {8{&addr}};
+endmodule
+
+module rom_2600_3 (
+`ifdef GL_TEST
+  input wire VPWR,
+  input wire VGND,
+`endif
+  input  wire [11:0] addr,
+  output wire [ 7:0] q
+);
+  assign q = {8{&addr}};
+endmodule
+
 module tb ();
 
   // Dump the signals to a VCD file. You can view it with gtkwave.
