@@ -295,11 +295,62 @@ module tt_um_rejunity_atari2600 (
     // rom[12'hFFD] <= 8'hF0; rom[12'hFFC] <= 8'h00;
   end
 
-  wire use_internal_rom = rom_config[4]; // maps to FIRE button
-  wire [7:0] rom_data = use_internal_rom ? internal_rom_data : external_rom_data;
-  reg [7:0] internal_rom_data;
-  reg [7:0] external_rom_data;
-  
+  wire use_internal_rom = rom_config[4];
+  reg  [7:0] internal_rom_data;
+  reg  [7:0] external_rom_data;
+  reg  [7:0] ram_data;
+  reg  [7:0] rom_data;
+
+  reg [11:0] romx_addr;
+  wire [7:0] rom0_data;
+  wire [7:0] rom1_data;
+  wire [7:0] rom2_data;
+  wire [7:0] rom3_data;
+  reg  [7:0] rom0_data_r;
+  reg  [7:0] rom1_data_r;
+  reg  [7:0] rom2_data_r;
+  reg  [7:0] rom3_data_r;
+
+  rom_2600_0 rom0_I (
+    .addr (romx_addr),
+    .q    (rom0_data)
+  );
+
+  rom_2600_1 rom1_I (
+    .addr (romx_addr),
+    .q    (rom1_data)
+  );
+
+  rom_2600_2 rom2_I (
+    .addr (romx_addr),
+    .q    (rom2_data)
+  );
+
+  rom_2600_3 rom3_I (
+    .addr (romx_addr),
+    .q    (rom3_data)
+  );
+
+  always @(posedge clk)
+  begin
+    romx_addr <= address_bus;
+    rom0_data_r <= rom0_data;
+    rom1_data_r <= rom1_data;
+    rom2_data_r <= rom2_data;
+    rom3_data_r <= rom3_data;
+  end
+
+
+  always @(*)
+   casez ({use_internal_rom, rom_config[3:1]})
+     4'b0zzz: rom_data = external_rom_data;
+     4'b10zz: rom_data = internal_rom_data;
+     4'b1100: rom_data = rom0_data_r;
+     4'b1101: rom_data = rom1_data_r;
+     4'b1110: rom_data = rom2_data_r;
+     4'b1111: rom_data = rom3_data_r;
+   endcase
+
   always @(posedge clk) begin
   `ifdef VALIDATE_QSPI_ROM_AGAINST_INTERNAL_ROM
     `ifdef SIM
