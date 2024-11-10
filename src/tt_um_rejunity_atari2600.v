@@ -23,9 +23,11 @@ module tt_um_rejunity_atari2600 (
 );
   
   // Configuration captured during RESET phase
+  reg [7:0] rom_config;
+
   always @(posedge clk)
     if (~rst_n)
-       use_internal_rom <= ui_in[1];
+      rom_config <= ui_in;
 
   // -------------------------------------------------------------------------
 
@@ -293,7 +295,7 @@ module tt_um_rejunity_atari2600 (
     // rom[12'hFFD] <= 8'hF0; rom[12'hFFC] <= 8'h00;
   end
 
-  reg use_internal_rom;
+  wire use_internal_rom = rom_config[4]; // maps to FIRE button
   wire [7:0] rom_data = use_internal_rom ? internal_rom_data : external_rom_data;
   reg [7:0] internal_rom_data;
   reg [7:0] external_rom_data;
@@ -313,8 +315,8 @@ module tt_um_rejunity_atari2600 (
 
 `ifdef QSPI_ROM
   reg spi_restart;
-  wire [23:0] spi_address = address_bus[11:0] + 24'h10_00_00; // iceprog -o1024k
-  // wire [15:0] spi_address = address_bus[11:0] + 16'hF0_00; // iceprog -o60k
+  wire [23:0] spi_address = {4'b0001, rom_config[7:0], address_bus[11:0]}; // iceprog -o1024k
+  // wire [23:0] spi_address = address_bus[11:0] + 24'h10_00_00; // iceprog -o1024k
   wire        need_new_rom_data = valid_rom_address_on_bus      && (rom_data_pending == 0) && !rom_addr_in_cache;
   wire        spi_start_read = !spi_busy && (need_new_rom_data || spi_restart);
   wire        spi_stop_read =   spi_busy && need_new_rom_data;
