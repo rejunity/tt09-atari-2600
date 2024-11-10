@@ -30,14 +30,14 @@ project:
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:
   # Inputs
-  ui[0]: "Switch RESET"
-  ui[1]: "Joystick FIRE"
-  ui[2]: ""
-  ui[3]: "Joystick UP"
-  ui[4]: "Joystick DOWN"
-  ui[5]: "Joystick LEFT"
-  ui[6]: "Joystick RIGHT"
-  ui[7]: ""
+  ui[0]: "UP    / Switch 1"
+  ui[1]: "DOWN  / Switch 2"
+  ui[2]: "LEFT  / Switch BW"
+  ui[3]: "RIGHT / Switch 3"
+  ui[4]: "FIRE"
+  ui[5]: "Joystick 1 / 2"
+  ui[6]: "Switches"
+  ui[7]: "RESET"
 
   # Outputs
   uo[0]: "R1"

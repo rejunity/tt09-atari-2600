@@ -36,7 +36,6 @@ module top  (
     output      [7:0] b,
     output      pwm_audio
 );
-
     wire[1:0] vga_6bpp_r;
     wire[1:0] vga_6bpp_g;
     wire[1:0] vga_6bpp_b;
@@ -44,9 +43,17 @@ module top  (
     wire [7:0] pmod1_out;
     wire [7:0] pmod2_out;
     wire [7:0] pmod2_in;
+
+    wire [4:0] switches = {sw4, sw3, sw2, sw1, btn_select};
+    reg  [4:0] prev_switches; always @(posedge clk_pixel) prev_switches <= switches;
     tt_um_rejunity_atari2600 atari2600(
         // localparam UP = 3, RIGHT = 6, LEFT = 5, DOWN = 4, SELECT = 2, RESET = 0, FIRE = 1;
-        .ui_in({btn_right, btn_left, btn_down, btn_up, btn_select, btn_fire, ~btn_reset}),
+        // .ui_in({btn_right, btn_left, btn_down, btn_up, btn_select, btn_fire, ~btn_reset}),
+        .ui_in(
+            (prev_switches != switches) ?
+            // (0)?
+            {btn_reset, 1'b1, 1'b1, sw4, sw3, sw2, sw1, btn_select} :
+            {btn_reset, 1'b0, 1'b0, btn_fire, btn_right, btn_left, btn_down, btn_up}),
         .uo_out (pmod1_out),
         .uio_in (pmod2_in ),
         .uio_out(pmod2_out),

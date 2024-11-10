@@ -49,9 +49,9 @@ module tt_um_rejunity_atari2600 (
     .reset(~rst_n),
     .system_enable(system_enable),
     // inputs
-    .input_switches(switches),
-    .input_joystick_0(buttons),
-    .input_joystick_1(buttons),
+    .input_switches(switches[4:1]),
+    .input_joystick_0(joystick_0),
+    .input_joystick_1(joystick_1),
     .input_paddle_0(8'd200),
     .input_paddle_1(8'd200),
     .input_paddle_2(8'd200),
@@ -106,21 +106,54 @@ module tt_um_rejunity_atari2600 (
   // 1 bidirectional pin is unused (tia_vsync for diagostics in Verilator)
   // @TODO: output video_active for DVI
 `ifdef QSPI_ROM
-  assign uio_out = {audio_pwm,      1'b1, spi_data_out[3:2], spi_clk_out, spi_data_out[1:0], spi_select};
+  `ifdef SIM
+  wire cs1_tiavs = tia_vsync;
+  `else 
+  wire cs1_tiavs = 1'b1;
+  `endif
+  assign uio_out = {audio_pwm, cs1_tiavs, spi_data_out[3:2], spi_clk_out, spi_data_out[1:0], spi_select};
   assign uio_oe  = {     1'b1,      1'b1,  spi_data_oe[3:2],        1'b1,  spi_data_oe[1:0],       1'b1};
-  wire [3:0] switches = 4'b1111;
   assign spi_data_in = {uio_in[5:4], uio_in[2:1]};
 `else
   assign uio_out = {audio_pwm, tia_vsync,       6'b000000};
   assign uio_oe  = {     1'b1,      1'b1,       6'b000000};
-  wire [3:0] switches = ~uio_in[3:0]; // TODO: pass switches together with input
-                                      // adopt NES controller format
 `endif
 
   // Inputs
+  // 
+  // Atari joystick port
+  //     1 2 3 4 5
+  //      6 7 8 9
+  //  1 Up, 2 Down, 3 Left, 4 Right, 5 Paddle B
+  //  6 Fire,                        9 Paddle A
+  //  (7 +5V), (8 ground)
+
+  // Define similar layout for PMOD
+  //  0 Up, 1 Down, 2 Left, 3 Right
+  //  4 Fire, 5 Joystick 1/2, 6 Switches, 7 Reset
+
   // TODO: fix a weird mapping in TIA.v / PIA.v
   // localparam UP = 3, RIGHT = 6, LEFT = 5, DOWN = 4, SELECT = 2, RESET = 0, FIRE = 1;
-  wire [6:0] buttons = {~ui_in[6:1], ui_in[0]};
+  //wire [6:0] buttons = {~ui_in[6:1], ui_in[0]};
+  reg [6:0] joystick_0;
+  reg [6:0] joystick_1;
+  reg [4:0] switches;
+  wire [6:0] joypmod = {~ui_in[3], ~ui_in[2], ~ui_in[1], ~ui_in[0], switches[0] /* select */, ~ui_in[4], ~ui_in[7]};
+
+  always @(posedge clk) begin
+    if (~rst_n) begin
+      joystick_0 <= {5'b11111, 1'b0};
+      joystick_1 <= {5'b11111, 1'b0};
+      switches   <=  5'b11111;
+    end else begin
+      if (ui_in[6])
+        switches <= ~ui_in[4:0];
+      if (~ui_in[5])
+        joystick_0 <= joypmod;
+      else
+        joystick_1 <= joypmod;
+    end
+  end
 
   // Suppress unused signals warning
   wire _unused_ok = &{ena, uio_in[7:4]};
