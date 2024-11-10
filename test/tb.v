@@ -5,7 +5,7 @@
    that can be driven / tested by the cocotb test.py.
 */
 
-
+// @TODO: move into a separate file
 module rom_2600_0 (
 `ifdef GL_TEST
   input wire VPWR,
@@ -14,7 +14,10 @@ module rom_2600_0 (
   input  wire [11:0] addr,
   output wire [ 7:0] q
 );
-  assign q = {8{&addr}};
+  reg [7:0] rom [4095:0]; assign q = rom[addr];
+  initial begin
+    $readmemh("../roms/rom_macro_0.mem", rom, 0, 4095);
+  end
 endmodule
 
 module rom_2600_1 (
@@ -25,7 +28,10 @@ module rom_2600_1 (
   input  wire [11:0] addr,
   output wire [ 7:0] q
 );
-  assign q = {8{&addr}};
+  reg [7:0] rom [4095:0]; assign q = rom[addr];
+  initial begin
+    $readmemh("../roms/rom_macro_1.mem", rom, 0, 4095);
+  end
 endmodule
 
 module rom_2600_2 (
@@ -36,7 +42,10 @@ module rom_2600_2 (
   input  wire [11:0] addr,
   output wire [ 7:0] q
 );
-  assign q = {8{&addr}};
+  reg [7:0] rom [4095:0]; assign q = rom[addr];
+  initial begin
+    $readmemh("../roms/rom_macro_2.mem", rom, 0, 4095);
+  end
 endmodule
 
 module rom_2600_3 (
@@ -47,7 +56,11 @@ module rom_2600_3 (
   input  wire [11:0] addr,
   output wire [ 7:0] q
 );
-  assign q = {8{&addr}};
+  reg [7:0] rom [4095:0]; assign q = rom[addr];
+  initial begin
+    $readmemh("../roms/rom_macro_3.mem", rom, 0, 4095);
+  end
+
 endmodule
 
 module tb ();
