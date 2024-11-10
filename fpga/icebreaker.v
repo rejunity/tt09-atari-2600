@@ -146,7 +146,8 @@ module top (
     wire [7:0] pmod2_oe;
     tt_um_rejunity_atari2600 atari2600(
         // localparam UP = 3, RIGHT = 6, LEFT = 5, DOWN = 4, SELECT = 2, RESET = 0, FIRE = 1;
-        .ui_in({BTN3, BTN2, BTN3, BTN2, 1'b0, BTN1, BTN_N}),
+        // .ui_in({BTN3, BTN2, BTN3, BTN2, 1'b0, BTN1, BTN_N}),
+        .ui_in({~BTN_N, 1'b0, 1'b0, BTN1, BTN3, BTN2, BTN3, BTN2}),
         .uo_out(pmod1_out),
         .uio_in(pmod2_in),
         .uio_out(pmod2_out),
