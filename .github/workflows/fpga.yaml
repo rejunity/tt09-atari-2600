@@ -3,7 +3,7 @@ name: fpga
 on:
   push:
     # Comment out (or remove) the following line to run the FPGA workflow on every push:
-    branches: none
+    # branches: none
   workflow_dispatch:
 
 jobs:
