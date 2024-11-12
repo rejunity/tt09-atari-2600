@@ -36,10 +36,3 @@ jobs:
 
       - name: GL test
         uses: TinyTapeout/tt-gds-action/gl_test@tt09
-
-  viewer:
-    needs: gds
-    runs-on: ubuntu-latest
-    permissions:
-    steps:
-      - uses: TinyTapeout/tt-gds-action/viewer@tt09
