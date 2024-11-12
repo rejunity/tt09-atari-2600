@@ -144,8 +144,8 @@ module tt_um_rejunity_atari2600 (
 
   always @(posedge clk) begin
     if (~rst_n) begin
-      joystick_0 <= {5'b11111, 1'b0};
-      joystick_1 <= {5'b11111, 1'b0};
+      joystick_0 <= {6'b111111, 1'b0};
+      joystick_1 <= {6'b111111, 1'b0};
       switches   <=  5'b11111;
     end else begin
       if (ui_in[6])
@@ -295,11 +295,68 @@ module tt_um_rejunity_atari2600 (
     // rom[12'hFFD] <= 8'hF0; rom[12'hFFC] <= 8'h00;
   end
 
-  wire use_internal_rom = rom_config[4]; // maps to FIRE button
-  wire [7:0] rom_data = use_internal_rom ? internal_rom_data : external_rom_data;
-  reg [7:0] internal_rom_data;
-  reg [7:0] external_rom_data;
-  
+  wire use_internal_rom = rom_config[4];
+  reg  [7:0] internal_rom_data;
+  reg  [7:0] external_rom_data;
+  reg  [7:0] ram_data;
+  reg  [7:0] rom_data;
+
+  reg [11:0] romx_addr;
+  wire [7:0] rom0_data;
+  wire [7:0] rom1_data;
+  wire [7:0] rom2_data;
+  wire [7:0] rom3_data;
+  reg  [7:0] rom0_data_r;
+  reg  [7:0] rom1_data_r;
+  reg  [7:0] rom2_data_r;
+  reg  [7:0] rom3_data_r;
+
+`ifdef NO_MACRO_ROMS
+  always @(*)
+   casez ({use_internal_rom, rom_config[3:0]})
+     5'b0zzzz: rom_data = external_rom_data;
+      default: rom_data = internal_rom_data;
+   endcase
+`else 
+  rom_2600_0 rom0_I (
+    .addr (romx_addr),
+    .q    (rom0_data)
+  );
+
+  rom_2600_1 rom1_I (
+    .addr (romx_addr),
+    .q    (rom1_data)
+  );
+
+  rom_2600_2 rom2_I (
+    .addr (romx_addr),
+    .q    (rom2_data)
+  );
+
+  rom_2600_3 rom3_I (
+    .addr (romx_addr),
+    .q    (rom3_data)
+  );
+
+  always @(posedge clk)
+  begin
+    romx_addr <= address_bus;
+    rom0_data_r <= rom0_data;
+    rom1_data_r <= rom1_data;
+    rom2_data_r <= rom2_data;
+    rom3_data_r <= rom3_data;
+  end
+  always @(*)
+   casez ({use_internal_rom, rom_config[3:0]})
+     5'b0zzzz: rom_data = external_rom_data;
+     5'b10001: rom_data = rom0_data_r;
+     5'b10010: rom_data = rom1_data_r;
+     5'b10100: rom_data = rom2_data_r;
+     5'b11000: rom_data = rom3_data_r;
+      default: rom_data = internal_rom_data;
+   endcase
+`endif
+
   always @(posedge clk) begin
   `ifdef VALIDATE_QSPI_ROM_AGAINST_INTERNAL_ROM
     `ifdef SIM
@@ -317,7 +374,7 @@ module tt_um_rejunity_atari2600 (
   reg spi_restart;
   // wire [23:0] spi_address = {4'b0001, rom_config[7:0], address_bus[11:0]}; // iceprog -o1024k
   wire [23:0] spi_address = {rom_config[7:5], 1'b1, rom_config[3:0], 4'b0000, address_bus[11:0]}; // iceprog -o1024k
-  wire        need_new_rom_data = valid_rom_address_on_bus      && (rom_data_pending == 0) && !rom_addr_in_cache;
+  wire        need_new_rom_data = valid_rom_address_on_bus      && !rom_data_pending && !rom_addr_in_cache;
   wire        spi_start_read = !spi_busy && (need_new_rom_data || spi_restart);
   wire        spi_stop_read =   spi_busy && need_new_rom_data;
   // wire        spi_stop_read = spi_data_ready;
@@ -357,7 +414,7 @@ module tt_um_rejunity_atari2600 (
     .busy(spi_busy)
   );
 
-  reg [7:0] rom_data_pending;
+  reg rom_data_pending;
   reg [11:0] rom_last_read_addr;
   reg [11:0] rom_next_addr_in_queue;
   wire rom_addr_in_cache = (rom_last_read_addr == address_bus[11:0] ||
@@ -389,7 +446,7 @@ module tt_um_rejunity_atari2600 (
     // 65..70% within ±4 bytes
     //  8..9%  within +4 bytes
   end
-  wire        wait_for_memory = rom_cycle && (rom_data_pending > 0);
+  wire        wait_for_memory = rom_cycle && rom_data_pending;
 `else
   wire        wait_for_memory = 0;
 `endif

@@ -5,12 +5,14 @@
 // Also see: https://projectf.io/posts/fpga-graphics/
 
 `default_nettype none
+`define FPGA
 `define VGA_6BPP
 // `define VGA_12BPP
 // `define DVI
 
 // `define VGA_50MHz
 // `define QSPI_ROM_EMU
+`define NO_MACRO_ROMS
 `define QSPI_ROM
 
 module vga_pll(

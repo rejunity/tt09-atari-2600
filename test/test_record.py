@@ -23,7 +23,7 @@ async def validate(dut):
     # Reset
     dut._log.info("Reset")
     dut.ena.value = 1
-    dut.ui_in.value = 0 # 2 for built-in ROM
+    dut.ui_in.value = 0b0_0000 # 0b1_xxxx for built-in ROMs
     dut.uio_in.value = 0
     dut.rst_n.value = 1
     await ClockCycles(dut.clk, 2*F)
@@ -72,7 +72,7 @@ async def record_project(dut):
     # Reset
     dut._log.info("Reset")
     dut.ena.value = 1
-    dut.ui_in.value = 0 # 2 for built-in ROM
+    dut.ui_in.value = 0b0_0000 # 0b1_xxxx for built-in ROMs
     dut.uio_in.value = 0
     dut.rst_n.value = 1
     await ClockCycles(dut.clk, 2*F)
@@ -93,4 +93,4 @@ async def record_project(dut):
         append_to_file(RECORDED_TEST_FILENAME, f"await ClockCycles(dut.clk, {cycles_per_step})")
         append_assert_to_file(RECORDED_TEST_FILENAME, dut, "dut.uo_out")
         append_assert_to_file(RECORDED_TEST_FILENAME, dut, "dut.user_project.atari2600.cpu.PC", "dut.PC", "hex")
-        # print (hex())
+        # append_assert_to_file(RECORDED_TEST_FILENAME, dut, "dut.user_project.atari2600.cpu.PC", type="hex")

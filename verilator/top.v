@@ -8,6 +8,7 @@
 // `define VGA_12BPP
 // `define DVI
 
+`define NO_MACRO_ROMS
 `define QSPI_ROM
 
 module top  (
