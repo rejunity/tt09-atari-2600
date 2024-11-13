@@ -1,5 +1,8 @@
 `default_nettype none
 
+// all build targets except the tapeout GDS job
+// potentially can use emulation instead of macro ROMs
+// GDS job uses real macro ROMs
 `ifdef SIM
 `define MACRO_ROM_EMU
 `elsif FPGA

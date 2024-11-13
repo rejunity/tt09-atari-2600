@@ -26,7 +26,6 @@ project:
     - "ALU.v"
     - "TIA.v"
     - "PIA.v"
-    - "macro_rom_emu_for_fpga_job.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:

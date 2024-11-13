@@ -11,6 +11,10 @@
 // `define VALIDATE_QSPI_ROM_AGAINST_INTERNAL_ROM
 `define QSPI_ROM
 
+`ifdef SYNTH
+`define NO_MACRO_ROMS
+`endif
+
 module tt_um_rejunity_atari2600 (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
