@@ -5,64 +5,6 @@
    that can be driven / tested by the cocotb test.py.
 */
 
-// @TODO: move into a separate file
-module rom_2600_0 (
-`ifdef GL_TEST
-  input wire VPWR,
-  input wire VGND,
-`endif
-  input  wire [11:0] addr,
-  output wire [ 7:0] q
-);
-  reg [7:0] rom [4095:0]; assign q = rom[addr];
-  initial begin
-    $readmemh("../roms/rom_macro_0.mem", rom, 0, 4095);
-  end
-endmodule
-
-module rom_2600_1 (
-`ifdef GL_TEST
-  input wire VPWR,
-  input wire VGND,
-`endif
-  input  wire [11:0] addr,
-  output wire [ 7:0] q
-);
-  reg [7:0] rom [4095:0]; assign q = rom[addr];
-  initial begin
-    $readmemh("../roms/rom_macro_1.mem", rom, 0, 4095);
-  end
-endmodule
-
-module rom_2600_2 (
-`ifdef GL_TEST
-  input wire VPWR,
-  input wire VGND,
-`endif
-  input  wire [11:0] addr,
-  output wire [ 7:0] q
-);
-  reg [7:0] rom [4095:0]; assign q = rom[addr];
-  initial begin
-    $readmemh("../roms/rom_macro_2.mem", rom, 0, 4095);
-  end
-endmodule
-
-module rom_2600_3 (
-`ifdef GL_TEST
-  input wire VPWR,
-  input wire VGND,
-`endif
-  input  wire [11:0] addr,
-  output wire [ 7:0] q
-);
-  reg [7:0] rom [4095:0]; assign q = rom[addr];
-  initial begin
-    $readmemh("../roms/rom_macro_3.mem", rom, 0, 4095);
-  end
-
-endmodule
-
 module tb ();
 
   // Dump the signals to a VCD file. You can view it with gtkwave.

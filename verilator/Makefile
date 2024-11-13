@@ -15,6 +15,7 @@ PROJECT_SOURCES += palette_24bpp.v
 
 SRC_TEST_UTILS_DIR = $(PWD)/../test
 PROJECT_SOURCES += qspi_rom_emu.v
+PROJECT_SOURCES += macro_rom_emu.v
 
 a2600: V${TOP}.mk
 	make -C ./obj_dir -f V${TOP}.mk
