@@ -16,7 +16,7 @@ Atari 2600 fits this goal perfectly thanks to it is minimal hardware design (i.e
 
 The design is so small that around **40** Atari consoles fit on a silicon die! The silicon area of this design is 0.2 mm2 (1000um x 216um) on a SkyWater 130 nm node.
 
-Explore chip in [3D directly in the browser](https://gds-viewer.tinytapeout.com/?model=https://rejunity.github.io/tt09-atari-2600/tinytapeout.gds.gltf)!
+Explore chip in [3D directly in the browser](https://gds-viewer.tinytapeout.com/?model=https://rejunity.github.io/tiny-atari-2600/tinytapeout.gds.gltf)!
 
 This design is submitted for fabrication with [Tiny Tapeout 09](https://tinytapeout.com) via eFabless [CI 2411 Shuttle](https://platform.efabless.com/shuttles/CI%202411). Check status here: https://app.tinytapeout.com/projects/1343
 
